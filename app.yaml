@@ -11,6 +11,9 @@ handlers:
 - url: /js
   static_dir: js
 
+- url: /auth/.*
+  script: auth.application
+
 - url: /.*
   script: main.application
   
