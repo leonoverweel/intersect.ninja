@@ -19,7 +19,7 @@ class MainPage(webapp2.RequestHandler):
 
 	def get(self):
 		template_values = {}
-		template = jinja_environment.get_template('index.html')
+		template = jinja_environment.get_template('html/index.html')
 		self.response.out.write(template.render(template_values))
 
 # Match page
@@ -27,7 +27,7 @@ class MatchPage(webapp2.RequestHandler):
 
 	def get(self):
 		template_values = {}
-		template = jinja_environment.get_template('match.html')
+		template = jinja_environment.get_template('html/match.html')
 		self.response.out.write(template.render(template_values))
 
 # Jinja setup

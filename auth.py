@@ -79,7 +79,7 @@ class Callback(webapp2.RequestHandler):
 			'redirect': BASE_URL + 'match',
 			'refresh_token': data['refresh_token']
 		}
-		template = jinja_environment.get_template('auth.html')
+		template = jinja_environment.get_template('html/auth.html')
 		self.response.out.write(template.render(template_values))
 
 # Jinja setup
