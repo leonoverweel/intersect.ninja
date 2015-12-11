@@ -3,15 +3,13 @@
 	<head>
 		<link rel="stylesheet" type="text/css" href="css/stylesheet.css">
 		<meta name="viewport" content="width=device-width">
+		<script type="text/javascript" src="../js/jquery-2.1.4.min.js"></script>
+		<script type="text/javascript" src="../js/match.js"></script>
 		<title>Music We Like</title>
 	</head>
 	<body>
 		<h1>Music We Like</h1>
 		<div>Access token: <span id="access_token"></span></div>
 		<div>Refresh token: <span id="refresh_token"></span></div>
-		<script>
-			document.getElementById("access_token").innerHTML = localStorage.getItem("access_token"); 
-			document.getElementById("refresh_token").innerHTML = localStorage.getItem("refresh_token"); 
-		</script>
 	</body>
 </html>
