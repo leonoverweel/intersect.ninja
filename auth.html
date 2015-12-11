@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width">
+		<title>Music We Like</title>
+	</head>
+	<body>
+		<p>Redirecting you to the application...</p>
+		<script>
+			localStorage.setItem("access_token", "{{ access_token }}");
+			localStorage.setItem("refresh_token", "{{ refresh_token }}");
+			window.location = "{{ redirect }}";
+		</script>
+	</body>
+</html>

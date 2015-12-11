@@ -7,6 +7,11 @@
 	</head>
 	<body>
 		<h1>Music We Like</h1>
-		<div>Access token: {{ access_token }}</div>
+		<div>Access token: <span id="access_token"></span></div>
+		<div>Refresh token: <span id="refresh_token"></span></div>
+		<script>
+			document.getElementById("access_token").innerHTML = localStorage.getItem("access_token"); 
+			document.getElementById("refresh_token").innerHTML = localStorage.getItem("refresh_token"); 
+		</script>
 	</body>
 </html>

@@ -72,14 +72,15 @@ class AuthCallback(webapp2.RequestHandler):
 		# Redirect to the home page if there's an error getting the access token
 		if response.status_code != 200:
 			self.redirect(BASE_URL)
-		
-		access_token = json.loads(response.content)['access_token']
+		data = json.loads(response.content)
 		
 		# Respond
 		template_values = {
-			'access_token': access_token
+			'access_token': data['access_token'],
+			'redirect': BASE_URL + 'match',
+			'refresh_token': data['refresh_token']
 		}
-		template = jinja_environment.get_template('match.html')
+		template = jinja_environment.get_template('auth.html')
 		self.response.out.write(template.render(template_values))
 
 # Main page
@@ -95,7 +96,7 @@ class MatchPage(webapp2.RequestHandler):
 
 	def get(self):
 		template_values = {}
-		template = jinja_environment.get_template('index.html')
+		template = jinja_environment.get_template('match.html')
 		self.response.out.write(template.render(template_values))
 
 # Jinja setup
