@@ -1,13 +1,31 @@
 $(document).ready(function() {
+	localStorage.setItem('access_token', 'BQCkHigmfeSD7Nri2TEc2QeK9oFdwG9Ocm-qhKnYHBTz6q3W5EC9HoO5KgluqicYpEIbCXt3REPEWWEzZZe3f_ZkuIycLizsaYiaS1bN_V5nyroyr9hq4WB8Qm9N2Db2bZSRJ3HCn8m7LJYD8cPLN5FHFL-6U-svQwjFceIQix7lbrtd35hLSqqPZyV_Jo3GYLE');
+	
 	$('#access_token').html(localStorage.getItem('access_token'));
 	$('#refresh_token').html(localStorage.getItem('refresh_token'));
 	
 	getCurrentUser();
 });
 
-function getCurrentUser(username) {
+/**
+ * Get the current user's id and call getPublicPlaylists()
+ */
+function getCurrentUser() {
 	spotifyGet('https://api.spotify.com/v1/me', function(data) {
-		console.log(JSON.stringify(data));
+		getPublicPlaylistIds(JSON.parse(data['responseText'])['id']);
+	});
+}
+
+/**
+ * Get a user's playlists by their id
+ * @param {string} userId - The id of the user whose public playlists to get
+ */
+function getPublicPlaylistIds(userId) {
+	spotifyGet('https://api.spotify.com/v1/users/' + userId + '/playlists', function(data) {
+		var playlists = JSON.parse(data['responseText'])['items'];
+		for(var i = 0; i < playlists.length; i++) {
+			console.log(playlists[i]['id']);
+		}
 	});
 }
 
