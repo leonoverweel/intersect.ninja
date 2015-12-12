@@ -1,7 +1,7 @@
 var matches = new Matches();
 
 $(document).ready(function() {
-	localStorage.setItem('access_token', 'BQAAJbI8cFWnsJUssV0TylOxjGKoXcXkxkoteKILWnrETBRLW8yjkR9oBj9996RW099GSuRS0hD4vNu7SkQtglu4G4j4vHhy6RbwWJeZ8NPc_rSIlbPhmPvM8lKXklFUMHHGzKswKdS-v56IFEk0YyCPVKDcKaFVFAthuQT5Yh4caFZ6SMaQU2cOh0ouAtn0g7Q');
+	localStorage.setItem('access_token', 'BQC8ppybdj480VCKWVDrbc7C2CCBR0diBcQG3fzmS2aSqZsgdlaNzrNJTzzttqim2DfkeiEXYfBE43W2-KZSYXCdAN-WFMIIUAieVLb_60tZQWkxSSQM2QoogV3l_yI5x1fh4T9YQMNI-kKrY7wQem1KySHm9DHlhiMd8khRcy3kPiKe0-GtP-ag_FOTR1p87A4');
 	
 	$('#access_token').html(localStorage.getItem('access_token'));
 	$('#refresh_token').html(localStorage.getItem('refresh_token'));
@@ -12,7 +12,7 @@ $(document).ready(function() {
 		},
 		function() {
 			$('#ready').html('Done!');
-			matches.sort('alph', 'asc', 'users', 'desc');
+			matches.sort('users', 'desc', 'length', 'desc');
 			console.log(matches);
 		}
 	);
@@ -127,7 +127,7 @@ Artist.prototype.getUserCount = function() {
 /**
  * Sort the artist's tracks by how many users added them, in decreasing order
  * @param {string} sortBy - The type of sort to perform (options: 'users', 'alph')
- * @param {string} order - Whether the sort should be ascending or descending (options: 'asc', 'desc')
+ * @param {string} order - Order in which to sort (options: 'asc', 'desc')
  */
 Artist.prototype.sort = function(sortBy, order) {
 	var sorted = this.tracks;
@@ -153,6 +153,13 @@ Artist.prototype.sort = function(sortBy, order) {
 			else {
 				return 0;
 			}
+		});
+	}
+	
+	// Sort by track length
+	else if(sortBy === 'length') {
+		sorted = sorted.sort(function(a, b) {
+			return b.trackLengthMs - a.trackLengthMs
 		});
 	}
 	
@@ -219,10 +226,10 @@ Matches.prototype.getArtist = function(artistId) {
 
 /**
  * Sort the artists by how many users added them, in decreasing order
- * @param {string} sortBy - The type of sort to perform (options: 'users')
- * @param {string} order - Order in which to return the sort (options: 'asc', 'desc')
- * @param {string} [trackSortBy] - The type of sort to perform (options: 'users', default same as sortBy)
- * @param {string} [trackOrder] - Order in which to return the sort (options: 'asc', 'desc', default same as order)
+ * @param {string} sortBy - The type of sort to perform (options: 'users', 'alph')
+ * @param {string} order - Order in which to sort (options: 'asc', 'desc')
+ * @param {string} [trackSortBy] - The type of sort to perform (options: 'users', 'alph' default same as sortBy)
+ * @param {string} [trackOrder] - Order in which to sort (options: 'asc', 'desc', default same as order)
  */
 Matches.prototype.sort = function(sortBy, order, trackSortBy, trackOrder) {
 	var sorted = this.artists;
