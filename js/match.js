@@ -12,11 +12,16 @@ $(document).ready(function() {
 		},
 		function() {
 			$('#ready').html('Done!');
+			console.log(matches);
 		}
 	);
 		
 	getCurrentUser(progress);
+	
+	getPublicPlaylistIds('1258599477', progress);
 });
+
+
 
 /**
  * Basic constructor for a new Track
@@ -25,26 +30,27 @@ $(document).ready(function() {
 function Track(trackId) {
 	this.trackId = trackId;
 	this.userIds = [];
-	
-	/**
-	 * Add a user to this track
-	 * @param {string} userId - The id of the user to add
-	 */
-	
-	this.addUser = function(userId) {
-		if(this.userIds.indexOf(userId) === -1) {
-			this.userIds.push(userId);
-		}
-	}
-	
-	/**
-	 * Get the amount of users who added this track
-	 * @returns {number} The amount of users who added this track
-	 */
-	this.getUserCount = function() {
-		return this.userIds.length;
+};
+
+/**
+ * Add a user to this track
+ * @param {string} userId - The id of the user to add
+ */
+Track.prototype.addUser = function(userId) {
+	if(this.userIds.indexOf(userId) === -1) {
+		this.userIds.push(userId);
 	}
 };
+
+/**
+ * Get the amount of users who added this track
+ * @returns {number} The amount of users who added this track
+ */
+Track.prototype.getUserCount = function() {
+	return this.userIds.length;
+};
+
+
 
 /**
  * Basic constructor for a new artist
@@ -54,117 +60,121 @@ function Artist(artistId) {
 	this.artistId = artistId;
 	this.tracks = [];
 	this.userIds = [];
+};
+
+/**
+ * Add a track to this artist
+ * @param {string} trackId - the id of the track to add
+ * @param {string} userId - the id of the user adding the track
+ */
+Artist.prototype.addTrack = function(trackId, userId) {
 	
-	/**
-	 * Add a track to this artist
-	 * @param {string} trackId - the id of the track to add
-	 * @param {string} userId - the id of the user adding the track
-	 */
-	this.addTrack = function(trackId, userId) {
-		
-		// Get the index of the track (if it's been added before)
-		var index = -1;
-		for(var i = 0; i < this.tracks.length; i++) {
-			if(this.tracks[i].trackId === trackId) {
-				index = i;
-			}
-		}
-		
-		// If the track is new, add it and add the user who added it
-		if(index === -1) {
-			var track = new Track(trackId);
-			track.addUser(userId);
-			this.tracks.push(track);
-		}
-		
-		// If it already exists, just add the new user to the track
-		else {
-			this.tracks[index].addUser(userId);
-		}
-	};
-	
-	/**
-	 * Get the number of users who have added this track
-	 * @param {string} trackId - The id of the track to check
-	 * @returns {number} The amount of users who have added this track
-	 */
-	this.getTrackCount = function(trackId) {
-		for(var i = 0; i < this.tracks.length; i++)
-			if(this.tracks[i].trackId === trackId)
-				return this.tracks[i].getUserCount();
-		return 0;
-	}
-	
-	/**
-	 * Add a user to this artist
-	 * @param {string} userId - the id of the user to add
-	 */
-	this.addUser = function(userId) {
-		if(this.userIds.indexOf(userId) === -1) {
-			this.userIds.push(userId);
+	// Get the index of the track (if it's been added before)
+	var index = -1;
+	for(var i = 0; i < this.tracks.length; i++) {
+		if(this.tracks[i].trackId === trackId) {
+			index = i;
 		}
 	}
 	
-	/**
-	 * Get the amount of users who added this artist
-	 * @returns {number} The amount of users who added this artist
-	 */
-	this.getUserCount = function() {
-		return this.userIds.length;
+	// If the track is new, add it and add the user who added it
+	if(index === -1) {
+		var track = new Track(trackId);
+		track.addUser(userId);
+		this.tracks.push(track);
 	}
-}
+	
+	// If it already exists, just add the new user to the track
+	else {
+		this.tracks[index].addUser(userId);
+	}
+};
+
+/**
+ * Get the number of users who have added this track
+ * @param {string} trackId - The id of the track to check
+ * @returns {number} The amount of users who have added this track
+ */
+Artist.prototype.getTrackCount = function(trackId) {
+	for(var i = 0; i < this.tracks.length; i++)
+		if(this.tracks[i].trackId === trackId)
+			return this.tracks[i].getUserCount();
+	return 0;
+};
+	
+/**
+ * Add a user to this artist
+ * @param {string} userId - the id of the user to add
+ */
+Artist.prototype.addUser = function(userId) {
+	if(this.userIds.indexOf(userId) === -1) {
+		this.userIds.push(userId);
+	}
+};
+	
+/**
+ * Get the amount of users who added this artist
+ * @returns {number} The amount of users who added this artist
+ */
+Artist.prototype.getUserCount = function() {
+	return this.userIds.length;
+};
+
+
 
 /**
  * Keep track of the matching artists and tracks from users' playlists
  */
 function Matches() {
 	this.artists = [];
-	
-	/**
-	 * Add a artist and track
-	 * @param {string} artistId - The id of the track's artist
-	 * @param {string} trackId - The id of the track to be added
-	 * @param {string} userId - The id of the user adding the track 
-	 */
-	this.add = function(artistId, trackId, userId) {
-		
-		// Find the index of the artist, if they've been added before
-		var index = -1;
-		for(var i = 0; i < this.artists.length; i++) {
-			if(this.artists[i].artistId === artistId) {
-				index = i;
-			}
-		}
-		
-		// If they're new, add them, add the user, and add the track
-		if(index === -1) {
-			var artist = new Artist(artistId);
-			artist.addUser(userId);
-			artist.addTrack(trackId, userId);
-			this.artists.push(artist);
-		}
-		
-		// If they're already matched, just add the user and the track
-		else {
-			this.artists[index].addUser(userId);
-			this.artists[index].addTrack(trackId, userId);
-		}
-	};
-	
-	/**
-	 * Get an artist by their id
-	 * @param {string} artistId - The id of the artist to get
-	 * @returns {Artist} The artist
-	 */
-	this.getArtist = function(artistId) {
-		for(var i = 0; i < this.artists.length; i++) {
-			if(this.artists[i].artistId === artistId) {
-				return this.artists[i];
-			}
-		}
-		return null;
-	};
 }
+
+/**
+ * Add a artist and track
+ * @param {string} artistId - The id of the track's artist
+ * @param {string} trackId - The id of the track to be added
+ * @param {string} userId - The id of the user adding the track 
+ */
+Matches.prototype.add = function(artistId, trackId, userId) {
+	
+	// Find the index of the artist, if they've been added before
+	var index = -1;
+	for(var i = 0; i < this.artists.length; i++) {
+		if(this.artists[i].artistId === artistId) {
+			index = i;
+		}
+	}
+	
+	// If they're new, add them, add the user, and add the track
+	if(index === -1) {
+		var artist = new Artist(artistId);
+		artist.addUser(userId);
+		artist.addTrack(trackId, userId);
+		this.artists.push(artist);
+	}
+	
+	// If they're already matched, just add the user and the track
+	else {
+		this.artists[index].addUser(userId);
+		this.artists[index].addTrack(trackId, userId);
+	}
+};
+
+/**
+ * Get an artist by their id
+ * @param {string} artistId - The id of the artist to get
+ * @returns {Artist} The artist
+ */
+Matches.prototype.getArtist = function(artistId) {
+	for(var i = 0; i < this.artists.length; i++) {
+		if(this.artists[i].artistId === artistId) {
+			return this.artists[i];
+		}
+	}
+	return null;
+};
+
+
 
 /**
  * Keep track of the progress of a process
@@ -176,28 +186,30 @@ function Progress(update, finished) {
 	this.completed = 0;
 	this.update = update;
 	this.finished = finished;
-	
-	/**
-	 * Add a new task to be completed
-	 */
-	this.add = function() {
-		this.queue++;
-	};
-	
-	/**
-	 * Complete a task, call the update() function, and call the finished() function if all tasks are completed
-	 */
-	this.complete = function() {
-		this.completed++;
-		this.update();
-		if(this.queue === this.completed) {
-			this.finished();
-		}
-	};
-}
+};
 
 /**
- * Get the current user's id and call getPublicPlaylists()
+ * Add a new task to be completed
+ */
+Progress.prototype.add = function() {
+	this.queue++;
+};
+
+/**
+ * Complete a task, call the update() function, and call the finished() function if all tasks are completed
+ */
+Progress.prototype.complete = function() {
+	this.completed++;
+	this.update();
+	if(this.queue === this.completed) {
+		this.finished();
+	}
+};
+
+
+
+/**
+ * Get the current user's id and call getPublicPlaylistIds()
  */
 function getCurrentUser(progress) {
 	spotifyGet('https://api.spotify.com/v1/me', function(data) {
@@ -209,17 +221,27 @@ function getCurrentUser(progress) {
  * Add each track in the playlist to matches
  */
 function crunchPlaylist(userId, playlistId, progress) {
-	spotifyGet('https://api.spotify.com/v1/users/' + userId + '/playlists/' + playlistId, function(data) {
-		var tracks = JSON.parse(data['responseText'])['tracks']['items'];
-		for(var i = 0; i < tracks.length; i++) {
-			var trackId = tracks[i]['track']['id'];
-			var trackArtists = tracks[i]['track']['artists'];
-			for(var j = 0; j < trackArtists.length; j++) {
-				matches.add(trackArtists[j]['id'], trackId, userId);
+	spotifyGet(
+		'https://api.spotify.com/v1/users/' + userId + '/playlists/' + playlistId, 
+		
+		// Playlist found
+		function(data) {
+			var tracks = JSON.parse(data['responseText'])['tracks']['items'];
+			for(var i = 0; i < tracks.length; i++) {
+				var trackId = tracks[i]['track']['id'];
+				var trackArtists = tracks[i]['track']['artists'];
+				for(var j = 0; j < trackArtists.length; j++) {
+					matches.add(trackArtists[j]['id'], trackId, userId);
+				}
 			}
+			progress.complete();
+		},
+		
+		// Playlist not found
+		function(data) {
+			progress.complete();
 		}
-		progress.complete();
-	});
+	);
 }
 
 /**
@@ -260,7 +282,7 @@ function spotifyGet(url, callback, error) {
 			
 			// Log other errors
 			else {
-				console.log("Error getting " + url + "\nStatus text: " + data.statusText);
+				error(data);
 			}
 		}
 	});
