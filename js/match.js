@@ -1,7 +1,7 @@
 var matches = new Matches();
 
 $(document).ready(function() {
-	localStorage.setItem('access_token', 'BQCkHigmfeSD7Nri2TEc2QeK9oFdwG9Ocm-qhKnYHBTz6q3W5EC9HoO5KgluqicYpEIbCXt3REPEWWEzZZe3f_ZkuIycLizsaYiaS1bN_V5nyroyr9hq4WB8Qm9N2Db2bZSRJ3HCn8m7LJYD8cPLN5FHFL-6U-svQwjFceIQix7lbrtd35hLSqqPZyV_Jo3GYLE');
+	localStorage.setItem('access_token', 'BQCz1NOuDclHciVOwZbocWsCfgDWGqvT8CuE_f8l3oFEFv0W-RHPqDAU3EFuUMlqH1xjjvE8N5bgjWRg8jsHH1Z_df4gP6AzR9Xp4DNOw_lMHOOBD27oNeA13QRNd0XTdLEGjloGlX5d9WZLFfM55A4l6_eqE3xnC-Gn7AC2u1xeFpgSteSeh3WULJxUocZ3Yrg');
 	
 	$('#access_token').html(localStorage.getItem('access_token'));
 	$('#refresh_token').html(localStorage.getItem('refresh_token'));
@@ -11,7 +11,7 @@ $(document).ready(function() {
 
 /**
  * Basic constructor for a new Track
- * @param {string} trackId - the track's id
+ * @param {string} trackId - The track's id
  */
 function Track(trackId) {
 	this.trackId = trackId;
@@ -19,7 +19,7 @@ function Track(trackId) {
 	
 	/**
 	 * Add a user to this track
-	 * @param {string} userId - the id of the user to add
+	 * @param {string} userId - The id of the user to add
 	 */
 	
 	this.addUser = function(userId) {
@@ -105,11 +105,55 @@ function Artist(artistId) {
 	}
 }
 
+/**
+ * Keep track of the matching artists and tracks from users' playlists
+ */
 function Matches() {
 	this.artists = [];
 	
-	this.addArtist = function(artistId, trackId) {
+	/**
+	 * Add a artist and track
+	 * @param {string} artistId - The id of the track's artist
+	 * @param {string} trackId - The id of the track to be added
+	 * @param {string} userId - The id of the user adding the track 
+	 */
+	this.add = function(artistId, trackId, userId) {
 		
+		// Find the index of the artist, if they've been added before
+		var index = -1;
+		for(var i = 0; i < this.artists.length; i++) {
+			if(this.artists[i].artistId === artistId) {
+				index = i;
+			}
+		}
+		
+		// If they're new, add them, add the user, and add the track
+		if(index === -1) {
+			var artist = new Artist(artistId);
+			artist.addUser(userId);
+			artist.addTrack(trackId, userId);
+			this.artists.push(artist);
+		}
+		
+		// If they're already matched, just add the user and the track
+		else {
+			this.artists[index].addUser(userId);
+			this.artists[index].addTrack(trackId, userId);
+		}
+	};
+	
+	/**
+	 * Get an artist by their id
+	 * @param {string} artistId - The id of the artist to get
+	 * @returns {Artist} The artist
+	 */
+	this.getArtist = function(artistId) {
+		for(var i = 0; i < this.artists.length; i++) {
+			if(this.artists[i].artistId === artistId) {
+				return this.artists[i];
+			}
+		}
+		return null;
 	};
 }
 
@@ -120,6 +164,7 @@ function crunchPlaylist(userId, playlistId) {
 	spotifyGet('https://api.spotify.com/v1/users/' + userId + '/playlists/' + playlistId, function(data) {
 		var tracks = JSON.parse(data['responseText'])['tracks']['items'];
 		for(var i = 0; i < tracks.length; i++) {
+			var trackId = tracks[i]['track']['id'];
 			var trackArtists = tracks[i]['track']['artists'];
 			for(var j = 0; j < trackArtists.length; j++) {
 				

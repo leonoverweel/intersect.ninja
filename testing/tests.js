@@ -107,3 +107,91 @@ QUnit.test("Test the Track() function", function (assert) {
 		"track's getUserCount() is correct after adding a new user"
 	);
 });
+
+/**
+ * Test the Matches() function
+ */
+QUnit.test("Test the Matches() function", function (assert) {
+	
+	var matches = new Matches();
+	matches.add('04gDigrS5kc9YWfZHwBETP', '3KWavdcNkuCYvgJaRABYAD', '2623847132');
+	
+	assert.strictEqual(
+		matches.artists[0].artistId,
+		'04gDigrS5kc9YWfZHwBETP', 
+		"First artist's id is correctly set"
+	);
+	
+	assert.strictEqual(
+		matches.getArtist('04gDigrS5kc9YWfZHwBETP').getUserCount(),
+		1,
+		"First artist has correct number of initial users"
+	);
+	
+	assert.strictEqual(
+		matches.getArtist('04gDigrS5kc9YWfZHwBETP').getTrackCount('3KWavdcNkuCYvgJaRABYAD'),
+		1,
+		"First artist's first track has correct number of initial users"
+	);
+	
+	// Add the artist and track again, by the same user
+	matches.add('04gDigrS5kc9YWfZHwBETP', '3KWavdcNkuCYvgJaRABYAD', '2623847132');
+	
+	assert.strictEqual(
+		matches.artists.length,
+		1,
+		"matches has correct number of artists after adding same artist again"
+	);
+	
+	assert.strictEqual(
+		matches.getArtist('04gDigrS5kc9YWfZHwBETP').getUserCount(),
+		1,
+		"First artist has correct number of users after adding them again by the same user"
+	);
+	
+	assert.strictEqual(
+		matches.getArtist('04gDigrS5kc9YWfZHwBETP').getTrackCount('3KWavdcNkuCYvgJaRABYAD'),
+		1,
+		"First artist's first track has correct number of users after adding it again by the same user"
+	);
+	
+	// Add the same track by the same artist, by a different user
+	matches.add('04gDigrS5kc9YWfZHwBETP', '3KWavdcNkuCYvgJaRABYAD', '6238471322');
+	
+	assert.strictEqual(
+		matches.getArtist('04gDigrS5kc9YWfZHwBETP').getUserCount(),
+		2,
+		"First artist has correct number of users after adding it again by a second user"
+	);
+	
+	assert.strictEqual(
+		matches.getArtist('04gDigrS5kc9YWfZHwBETP').getTrackCount('3KWavdcNkuCYvgJaRABYAD'),
+		2,
+		"First artist's first track has correct number of users after adding it again by a second user"
+	);
+	
+	// Add a different track by the same artist, by user 2
+	matches.add('04gDigrS5kc9YWfZHwBETP', 'KWavdcNkuCYvgJaRABYAD3', '6238471322');
+	
+	assert.strictEqual(
+		matches.getArtist('04gDigrS5kc9YWfZHwBETP').getUserCount(),
+		2,
+		"First artist still has correct number of users after adding a new track by a second user"
+	);
+	
+	assert.strictEqual(
+		matches.getArtist('04gDigrS5kc9YWfZHwBETP').getTrackCount('KWavdcNkuCYvgJaRABYAD3'),
+		1,
+		"First artist's second track has correct number of users after adding it user 2"
+	);
+	
+	// Add a different artist
+	matches.add('4gDigrS5kc9YWfZHwBETP0', 'KWavdcNkuCYvgJaRABYAD3', '6238471322');
+	
+	assert.strictEqual(
+		matches.artists.length,
+		2,
+		"matches has correct number of artists after adding a second artist"
+	);
+	
+});
