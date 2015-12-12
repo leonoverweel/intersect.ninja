@@ -1,12 +1,21 @@
 var matches = new Matches();
 
 $(document).ready(function() {
-	localStorage.setItem('access_token', 'BQCz1NOuDclHciVOwZbocWsCfgDWGqvT8CuE_f8l3oFEFv0W-RHPqDAU3EFuUMlqH1xjjvE8N5bgjWRg8jsHH1Z_df4gP6AzR9Xp4DNOw_lMHOOBD27oNeA13QRNd0XTdLEGjloGlX5d9WZLFfM55A4l6_eqE3xnC-Gn7AC2u1xeFpgSteSeh3WULJxUocZ3Yrg');
+	localStorage.setItem('access_token', 'BQA_JqiuEOdA-zX9tb1Lls84ofUBSbTBgeECnoXzVqvCBBlyui0BjCLDDvFPqTnF5oC5GlKEHc-h9TXsR0oifMUTr8uVOdnEHLG0hQAz221vTBIa9gBVKWBIiNiNuVseljkTBAEOmR5EJXC6HVZPlemmlKFyDI1EWAS_CtLwko3AdhWja5qKDJ5GTm0Vh-R8vaI');
 	
 	$('#access_token').html(localStorage.getItem('access_token'));
 	$('#refresh_token').html(localStorage.getItem('refresh_token'));
 	
-	getCurrentUser();
+	var progress = new Progress(
+		function() {
+			$('#progress').html('Crunching your playlists (' + progress.completed + ' / ' + progress.queue + ')');
+		},
+		function() {
+			$('#ready').html('Done!');
+		}
+	);
+		
+	getCurrentUser(progress);
 });
 
 /**
@@ -158,27 +167,58 @@ function Matches() {
 }
 
 /**
- * 
+ * Keep track of the progress of a process
+ * @param {function} update - The function to call every time a task in the queue is completed
+ * @param {function} finished - The function to call when all tasks in the queue are completed
  */
-function crunchPlaylist(userId, playlistId) {
+function Progress(update, finished) {
+	this.queue = 0;
+	this.completed = 0;
+	this.update = update;
+	this.finished = finished;
+	
+	/**
+	 * Add a new task to be completed
+	 */
+	this.add = function() {
+		this.queue++;
+	};
+	
+	/**
+	 * Complete a task, call the update() function, and call the finished() function if all tasks are completed
+	 */
+	this.complete = function() {
+		this.completed++;
+		this.update();
+		if(this.queue === this.completed) {
+			this.finished();
+		}
+	};
+}
+
+/**
+ * Get the current user's id and call getPublicPlaylists()
+ */
+function getCurrentUser(progress) {
+	spotifyGet('https://api.spotify.com/v1/me', function(data) {
+		getPublicPlaylistIds(JSON.parse(data['responseText'])['id'], progress);
+	});
+}
+
+/**
+ * Add each track in the playlist to matches
+ */
+function crunchPlaylist(userId, playlistId, progress) {
 	spotifyGet('https://api.spotify.com/v1/users/' + userId + '/playlists/' + playlistId, function(data) {
 		var tracks = JSON.parse(data['responseText'])['tracks']['items'];
 		for(var i = 0; i < tracks.length; i++) {
 			var trackId = tracks[i]['track']['id'];
 			var trackArtists = tracks[i]['track']['artists'];
 			for(var j = 0; j < trackArtists.length; j++) {
-				
+				matches.add(trackArtists[j]['id'], trackId, userId);
 			}
 		}
-	});
-}
-
-/**
- * Get the current user's id and call getPublicPlaylists()
- */
-function getCurrentUser() {
-	spotifyGet('https://api.spotify.com/v1/me', function(data) {
-		getPublicPlaylistIds(JSON.parse(data['responseText'])['id']);
+		progress.complete();
 	});
 }
 
@@ -186,11 +226,13 @@ function getCurrentUser() {
  * Get a user's playlists by their id
  * @param {string} userId - The id of the user whose public playlists to get
  */
-function getPublicPlaylistIds(userId) {
+function getPublicPlaylistIds(userId, progress) {
 	spotifyGet('https://api.spotify.com/v1/users/' + userId + '/playlists', function(data) {
 		var playlists = JSON.parse(data['responseText'])['items'];
-		for(var i = 0; i < playlists.length; i++)
-			crunchPlaylist(userId, playlists[i]['id']);
+		for(var i = 0; i < playlists.length; i++) {
+			progress.add();
+			crunchPlaylist(userId, playlists[i]['id'], progress);
+		}
 	});
 }
 
