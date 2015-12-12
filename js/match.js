@@ -1,7 +1,7 @@
 var matches = new Matches();
 
 $(document).ready(function() {
-	//localStorage.setItem('access_token', 'BQC2A-gSn4w490gtaEE0CL5JNf8iqyIbAnK0EywJJLd4-DMvHHdGs8oJaEPjLkKkSPdZBhmHEHTZeSctUxjCIrwRxTWM15DFLbutD-Kq-8JXh25ipvEuHMLAPqNGkpBq-KfFHrHHyEayPCouWAcuW8JPb4X3jcGwkZocftZ-zj_IBM4YWm4vtvPN0U-5tTXiZq8');
+	localStorage.setItem('access_token', 'BQAAJbI8cFWnsJUssV0TylOxjGKoXcXkxkoteKILWnrETBRLW8yjkR9oBj9996RW099GSuRS0hD4vNu7SkQtglu4G4j4vHhy6RbwWJeZ8NPc_rSIlbPhmPvM8lKXklFUMHHGzKswKdS-v56IFEk0YyCPVKDcKaFVFAthuQT5Yh4caFZ6SMaQU2cOh0ouAtn0g7Q');
 	
 	$('#access_token').html(localStorage.getItem('access_token'));
 	$('#refresh_token').html(localStorage.getItem('refresh_token'));
@@ -12,14 +12,14 @@ $(document).ready(function() {
 		},
 		function() {
 			$('#ready').html('Done!');
-			matches.sort();
+			matches.sort('users', 'desc', 'users', 'desc');
 			console.log(matches);
 		}
 	);
 		
 	getCurrentUser(progress);
 
-	//getPublicPlaylistIds('id', progress);
+	getPublicPlaylistIds('1234654126', progress);
 });
 
 
@@ -96,10 +96,10 @@ Artist.prototype.addTrack = function(trackId, userId) {
  * @param {string} trackId - The id of the track to check
  * @returns {number} The amount of users who have added this track
  */
-Artist.prototype.getTrackCount = function(trackId) {
+Artist.prototype.getTrack = function(trackId) {
 	for(var i = 0; i < this.tracks.length; i++)
 		if(this.tracks[i].trackId === trackId)
-			return this.tracks[i].getUserCount();
+			return this.tracks[i];
 	return 0;
 };
 	
@@ -123,11 +123,24 @@ Artist.prototype.getUserCount = function() {
 
 /**
  * Sort the artist's tracks by how many users added them, in decreasing order
+ * @param {string} sortBy - The type of sort to perform (options: 'users')
+ * @param {string} order - Whether the sort should be ascending or descending (options: 'asc', 'desc')
  */
-Artist.prototype.sort = function() {
-	this.tracks = this.tracks.sort(function(a, b) {
-		return b.userIds.length - a.userIds.length;
-	});
+Artist.prototype.sort = function(sortBy, order) {
+	var sorted;
+	
+	// Sort by users
+	if(sortBy === 'users') {
+		sorted = this.tracks.sort(function(a, b, order) {
+			return a.getUserCount() - b.getUserCount();
+		});
+	}
+	
+	// Order
+	if(order === 'desc') {
+		sorted.reverse();
+	}
+	return sorted;
 };
 
 
@@ -186,14 +199,34 @@ Matches.prototype.getArtist = function(artistId) {
 
 /**
  * Sort the artists by how many users added them, in decreasing order
+ * @param {string} sortBy - The type of sort to perform (options: 'users')
+ * @param {string} order - Order in which to return the sort (options: 'asc', 'desc')
+ * @param {string} [trackSortBy] - The type of sort to perform (options: 'users', default same as sortBy)
+ * @param {string} [trackOrder] - Order in which to return the sort (options: 'asc', 'desc', default same as order)
  */
-Matches.prototype.sort = function() {
-	this.artists = this.artists.sort(function(a, b) {
-		return b.getUserCount() - a.getUserCount();
-	});
-	for(var i = 0; i < this.artists.length; i++) {
-		this.artists[i].sort();
+Matches.prototype.sort = function(sortBy, order, trackSortBy, trackOrder) {
+	var sorted;
+	
+	// Sort by users
+	if(sortBy === 'users') {
+		sorted = this.artists.sort(function(a, b) {
+			return a.getUserCount() - b.getUserCount();
+		});
 	}
+	
+	// Sort artists' tracks
+	for(var i = 0; i < sorted.length; i++) {
+		sorted[i].sort(
+			(trackSortBy != null) ? trackSortBy : sortBy, 
+			(trackOrder != null) ? trackOrder : order
+		);
+	}
+	
+	// Reverse if descending
+	if(order === 'desc') {
+		sorted.reverse()
+	}
+	return sorted;
 };
 
 

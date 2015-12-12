@@ -46,21 +46,21 @@ QUnit.test("Test the Artist() function", function (assert) {
 	);
 	
 	assert.strictEqual(
-		artist.getTrackCount('3KWavdcNkuCYvgJaRABYAD'),
+		artist.getTrack('3KWavdcNkuCYvgJaRABYAD').getUserCount(),
 		1,
 		"Initial track count correct"
 	);
 	
 	artist.addTrack('3KWavdcNkuCYvgJaRABYAD', '1262384713');
 	assert.strictEqual(
-		artist.getTrackCount('3KWavdcNkuCYvgJaRABYAD'),
+		artist.getTrack('3KWavdcNkuCYvgJaRABYAD').getUserCount(),
 		1,
 		"Count track correct after adding track again by same user"
 	);
 	
 	artist.addTrack('3KWavdcNkuCYvgJaRABYAD', '2623847131');
 	assert.strictEqual(
-		artist.getTrackCount('3KWavdcNkuCYvgJaRABYAD'),
+		artist.getTrack('3KWavdcNkuCYvgJaRABYAD').getUserCount(),
 		2,
 		"Count track correct after adding track again by different user"
 	);
@@ -129,7 +129,7 @@ QUnit.test("Test the Matches() function", function (assert) {
 	);
 	
 	assert.strictEqual(
-		matches.getArtist('04gDigrS5kc9YWfZHwBETP').getTrackCount('3KWavdcNkuCYvgJaRABYAD'),
+		matches.getArtist('04gDigrS5kc9YWfZHwBETP').getTrack('3KWavdcNkuCYvgJaRABYAD').getUserCount(),
 		1,
 		"First artist's first track has correct number of initial users"
 	);
@@ -150,7 +150,7 @@ QUnit.test("Test the Matches() function", function (assert) {
 	);
 	
 	assert.strictEqual(
-		matches.getArtist('04gDigrS5kc9YWfZHwBETP').getTrackCount('3KWavdcNkuCYvgJaRABYAD'),
+		matches.getArtist('04gDigrS5kc9YWfZHwBETP').getTrack('3KWavdcNkuCYvgJaRABYAD').getUserCount(),
 		1,
 		"First artist's first track has correct number of users after adding it again by the same user"
 	);
@@ -165,7 +165,7 @@ QUnit.test("Test the Matches() function", function (assert) {
 	);
 	
 	assert.strictEqual(
-		matches.getArtist('04gDigrS5kc9YWfZHwBETP').getTrackCount('3KWavdcNkuCYvgJaRABYAD'),
+		matches.getArtist('04gDigrS5kc9YWfZHwBETP').getTrack('3KWavdcNkuCYvgJaRABYAD').getUserCount(),
 		2,
 		"First artist's first track has correct number of users after adding it again by a second user"
 	);
@@ -180,7 +180,7 @@ QUnit.test("Test the Matches() function", function (assert) {
 	);
 	
 	assert.strictEqual(
-		matches.getArtist('04gDigrS5kc9YWfZHwBETP').getTrackCount('KWavdcNkuCYvgJaRABYAD3'),
+		matches.getArtist('04gDigrS5kc9YWfZHwBETP').getTrack('KWavdcNkuCYvgJaRABYAD3').getUserCount(),
 		1,
 		"First artist's second track has correct number of users after adding it user 2"
 	);
