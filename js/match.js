@@ -30,6 +30,8 @@ $(document).ready(function() {
  */
 function Track(trackId) {
 	this.trackId = trackId;
+	this.trackLengthMs;
+	this.trackName;
 	this.userIds = [];
 };
 
@@ -59,6 +61,7 @@ Track.prototype.getUserCount = function() {
  */
 function Artist(artistId) {
 	this.artistId = artistId;
+	this.artistName;
 	this.tracks = [];
 	this.userIds = [];
 };
@@ -286,7 +289,17 @@ function crunchPlaylist(userId, playlistId, progress) {
 				var trackId = tracks[i]['track']['id'];
 				var trackArtists = tracks[i]['track']['artists'];
 				for(var j = 0; j < trackArtists.length; j++) {
+					// Add the track and song
 					matches.add(trackArtists[j]['id'], trackId, userId);
+					
+					// Add the artist data
+					var artist = matches.getArtist(trackArtists[j]['id']);
+					artist.artistName = trackArtists[j]['name'];
+					
+					// Add the track data
+					var track = matches.getArtist(trackArtists[j]['id']).getTrack(trackId);
+					track.trackName = tracks[i]['track']['name'];
+					track.trackLengthMs = tracks[i]['track']['duration_ms'];
 				}
 			}
 			progress.complete();
