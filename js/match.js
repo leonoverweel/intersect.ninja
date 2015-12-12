@@ -1,7 +1,7 @@
 var matches = new Matches();
 
 $(document).ready(function() {
-	localStorage.setItem('access_token', 'BQA_JqiuEOdA-zX9tb1Lls84ofUBSbTBgeECnoXzVqvCBBlyui0BjCLDDvFPqTnF5oC5GlKEHc-h9TXsR0oifMUTr8uVOdnEHLG0hQAz221vTBIa9gBVKWBIiNiNuVseljkTBAEOmR5EJXC6HVZPlemmlKFyDI1EWAS_CtLwko3AdhWja5qKDJ5GTm0Vh-R8vaI');
+	//localStorage.setItem('access_token', 'BQC2A-gSn4w490gtaEE0CL5JNf8iqyIbAnK0EywJJLd4-DMvHHdGs8oJaEPjLkKkSPdZBhmHEHTZeSctUxjCIrwRxTWM15DFLbutD-Kq-8JXh25ipvEuHMLAPqNGkpBq-KfFHrHHyEayPCouWAcuW8JPb4X3jcGwkZocftZ-zj_IBM4YWm4vtvPN0U-5tTXiZq8');
 	
 	$('#access_token').html(localStorage.getItem('access_token'));
 	$('#refresh_token').html(localStorage.getItem('refresh_token'));
@@ -12,13 +12,14 @@ $(document).ready(function() {
 		},
 		function() {
 			$('#ready').html('Done!');
+			matches.sort();
 			console.log(matches);
 		}
 	);
 		
 	getCurrentUser(progress);
-	
-	getPublicPlaylistIds('1258599477', progress);
+
+	//getPublicPlaylistIds('id', progress);
 });
 
 
@@ -120,6 +121,15 @@ Artist.prototype.getUserCount = function() {
 	return this.userIds.length;
 };
 
+/**
+ * Sort the artist's tracks by how many users added them, in decreasing order
+ */
+Artist.prototype.sort = function() {
+	this.tracks = this.tracks.sort(function(a, b) {
+		return b.userIds.length - a.userIds.length;
+	});
+};
+
 
 
 /**
@@ -172,6 +182,18 @@ Matches.prototype.getArtist = function(artistId) {
 		}
 	}
 	return null;
+};
+
+/**
+ * Sort the artists by how many users added them, in decreasing order
+ */
+Matches.prototype.sort = function() {
+	this.artists = this.artists.sort(function(a, b) {
+		return b.getUserCount() - a.getUserCount();
+	});
+	for(var i = 0; i < this.artists.length; i++) {
+		this.artists[i].sort();
+	}
 };
 
 
@@ -249,7 +271,7 @@ function crunchPlaylist(userId, playlistId, progress) {
  * @param {string} userId - The id of the user whose public playlists to get
  */
 function getPublicPlaylistIds(userId, progress) {
-	spotifyGet('https://api.spotify.com/v1/users/' + userId + '/playlists', function(data) {
+	spotifyGet('https://api.spotify.com/v1/users/' + userId + '/playlists?limit=50', function(data) {
 		var playlists = JSON.parse(data['responseText'])['items'];
 		for(var i = 0; i < playlists.length; i++) {
 			progress.add();
@@ -262,6 +284,7 @@ function getPublicPlaylistIds(userId, progress) {
  * Send a GET request for some data to Spotify, and execute a function on the response
  * @param {string} url - The url to GET from Spotify
  * @param {function} callback - The function to execute on a response, if it is correct
+ * @param {function} error - The function to call on an incorrect response
  */
 function spotifyGet(url, callback, error) {
 	$.ajax({
