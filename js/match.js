@@ -12,7 +12,7 @@ $(document).ready(function() {
 		},
 		function() {
 			$('#ready').html('Done!');
-			matches.sort('users', 'desc', 'users', 'desc');
+			matches.sort('alph', 'asc', 'users', 'desc');
 			console.log(matches);
 		}
 	);
@@ -126,16 +126,33 @@ Artist.prototype.getUserCount = function() {
 
 /**
  * Sort the artist's tracks by how many users added them, in decreasing order
- * @param {string} sortBy - The type of sort to perform (options: 'users')
+ * @param {string} sortBy - The type of sort to perform (options: 'users', 'alph')
  * @param {string} order - Whether the sort should be ascending or descending (options: 'asc', 'desc')
  */
 Artist.prototype.sort = function(sortBy, order) {
-	var sorted;
+	var sorted = this.tracks;
 	
 	// Sort by users
 	if(sortBy === 'users') {
-		sorted = this.tracks.sort(function(a, b, order) {
+		sorted = sorted.sort(function(a, b) {
 			return a.getUserCount() - b.getUserCount();
+		});
+	}
+	
+	// Sort alphabetically
+	else if(sortBy === 'alph') {
+		sorted = sorted.sort(function(a, b) {
+			var trackNameA = a.trackName.toLowerCase();
+			var trackNameB = b.trackName.toLowerCase();
+			if(trackNameA < trackNameB) {
+				return -1;
+			}
+			else if(trackNameA > trackNameB) {
+				return 1;
+			}
+			else {
+				return 0;
+			}
 		});
 	}
 	
@@ -208,12 +225,29 @@ Matches.prototype.getArtist = function(artistId) {
  * @param {string} [trackOrder] - Order in which to return the sort (options: 'asc', 'desc', default same as order)
  */
 Matches.prototype.sort = function(sortBy, order, trackSortBy, trackOrder) {
-	var sorted;
+	var sorted = this.artists;
 	
 	// Sort by users
 	if(sortBy === 'users') {
-		sorted = this.artists.sort(function(a, b) {
+		sorted = sorted.sort(function(a, b) {
 			return a.getUserCount() - b.getUserCount();
+		});
+	}
+	
+	// Sort alphabetically
+	else if(sortBy === 'alph') {
+		sorted = sorted.sort(function(a, b) {
+			var artistNameA = a.artistName.toLowerCase();
+			var artistNameB = b.artistName.toLowerCase();
+			if(artistNameA < artistNameB) {
+				return -1;
+			}
+			else if(artistNameA > artistNameB) {
+				return 1;
+			}
+			else {
+				return 0;
+			}
 		});
 	}
 	
@@ -285,21 +319,32 @@ function crunchPlaylist(userId, playlistId, progress) {
 		// Playlist found
 		function(data) {
 			var tracks = JSON.parse(data['responseText'])['tracks']['items'];
+			
+			// Loop through playlist tracks
 			for(var i = 0; i < tracks.length; i++) {
+				
+				// Get track id
 				var trackId = tracks[i]['track']['id'];
+				
+				// Loop through the track's artists
 				var trackArtists = tracks[i]['track']['artists'];
 				for(var j = 0; j < trackArtists.length; j++) {
-					// Add the track and song
-					matches.add(trackArtists[j]['id'], trackId, userId);
 					
-					// Add the artist data
-					var artist = matches.getArtist(trackArtists[j]['id']);
-					artist.artistName = trackArtists[j]['name'];
-					
-					// Add the track data
-					var track = matches.getArtist(trackArtists[j]['id']).getTrack(trackId);
-					track.trackName = tracks[i]['track']['name'];
-					track.trackLengthMs = tracks[i]['track']['duration_ms'];
+					// Make sure there are no null ids
+					if(trackArtists[j]['id'] != null && trackId != null) {
+						
+						// Add the track and song
+						matches.add(trackArtists[j]['id'], trackId, userId);
+						
+						// Add the artist data
+						var artist = matches.getArtist(trackArtists[j]['id']);
+						artist.artistName = trackArtists[j]['name'];
+						
+						// Add the track data
+						var track = artist.getTrack(trackId);
+						track.trackName = tracks[i]['track']['name'];
+						track.trackLengthMs = tracks[i]['track']['duration_ms'];
+					}
 				}
 			}
 			progress.complete();
