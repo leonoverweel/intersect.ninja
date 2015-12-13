@@ -1,19 +1,39 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<link href='https://fonts.googleapis.com/css?family=Open+Sans:600,400,300italic' rel='stylesheet' type='text/css'>
 		<link rel="stylesheet" type="text/css" href="../css/stylesheet.css">
+		<link rel="stylesheet" type="text/css" href="../css/match.css">
 		<meta name="viewport" content="width=device-width">
 		<script type="text/javascript" src="../js/jquery-2.1.4.min.js"></script>
 		<script type="text/javascript" src="../js/match.js"></script>
-		<title>Music We Like</title>
+		<title>SpotiMatch</title>
 	</head>
 	<body>
-		<h1>Music We Like</h1>
-		<div>Access token: <span id="access_token"></span></div>
-		<div>Refresh token: <span id="refresh_token"></span></div>
-		<br />
-		<div id="progress"></div>
-		<br />
-		<div id="ready"></div>
+		<div class="wrapper progress">
+			state: <span id="progress">Loading...</span>
+		</div>
+		
+		<h1>SpotiMatch</h1>
+		
+		<div class="wrapper">
+			<p id="u-main">Loading your data...</p>
+			<p class="last">To get started, add other users below. The progress indicator above tells you what is currently being processed.</p>
+		</div>
+		
+		<div class="wrapper">
+			<p>To add a new user, paste their Spotify Profile Link below and click add. To find this link, go to their profile on Spotify, click the ... button below their name, and click Copy Profile Link.</p>
+			<table id="users">
+				<tr>
+					<td>Users</td>
+				</tr>
+			</table>
+			<input type="text" id="u-new" autocomplete=off placeholder="Paste a user's Profile Link here and click Add" onkeydown="if (event.keyCode == 13) $('#u-add').click()"/></input>
+			<button id="u-add" onclick="users.add($('#u-new')[0]['value'], progress); $('#u-new').val('');">Add</button>
+		</div>
+		
+		<div class="wrapper">
+			<p>Matches will show up here (not yet implemented). For now, see the console for the array of artists and tracks sorted by how many users like each user/ track.</p>
+		</div>
 	</body>
 </html>

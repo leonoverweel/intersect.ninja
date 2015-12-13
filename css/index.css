@@ -1,0 +1,39 @@
+html, body {
+	height: 100%;
+}
+
+.vertical-parent {
+    display: table;
+    height: 100%;
+    width: 100%;
+}
+
+.vertical-child {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.vertical-child div {
+	border-radius: 10px;
+}
+
+h1 {
+	margin-top: -6px;
+	margin-bottom: 10px;
+	text-align: center;
+}
+
+p.spotify-connect { 
+	text-align: center; 
+	margin-bottom: 0px;
+	margin-top: 15px;
+}
+
+p.spotify-connect a {
+    background: rgb(30, 215, 95);
+    padding: 10px;
+    border-radius: 20px;
+    display: inline-block;
+    padding-left: 20px;
+    padding-right: 20px;
+}

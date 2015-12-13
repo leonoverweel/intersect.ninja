@@ -1,0 +1,79 @@
+h1 {
+	margin-top: 0px;
+	margin-bottom: 15px;
+}
+
+.wrapper {
+	margin-top: 0px;
+	margin-bottom: 10px;
+	border-radius: 10px;
+}
+
+table {
+	margin: 0px;
+	padding: 0px;
+	color: rgb(255, 255, 255);
+	border-collapse: collapse;
+	width: 100%;
+}
+
+table tr {
+	border-bottom: rgb(40, 40, 40) 1px solid;
+}
+
+table tr:nth-of-type(1) {
+	color: rgb(180, 180, 180);
+	text-transform: uppercase;
+	font-size: 0.8em;
+}
+
+table td {
+	padding: 0px;
+	padding-bottom: 5px;
+	padding-top: 5px;
+}
+
+#u-new {
+    width: 90%;
+    margin: 0px;
+    border: none;
+    font-size: 1em;
+    background: none;
+    color: rgb(180, 180, 180);
+    padding-top: 8px;
+    border-bottom: rgb(40, 40, 40) 1px solid;
+    padding-bottom: 7px;
+}
+
+#u-add {
+    background: none;
+    border: none;
+    color: rgb(255, 255, 255);
+    font-size: 1em;
+    padding-top: 8px;
+    width: 9%;
+    float: right;
+    border-bottom: rgb(40, 40, 40) 1px solid;
+    padding-bottom: 7px;
+}
+
+#u-add:hover {
+    background: rgb(40, 40, 40);
+}
+
+#u-new:focus, #u-add:focus {
+   outline: none;
+}
+
+.progress {
+	padding: 5px;
+	text-align: center;
+	border-top-left-radius: 0px;
+	border-top-right-radius: 0px;
+}
+
+#progress {
+	width: 100%;
+	font-size: 0.9em;
+	color: rgb(255, 255, 255);
+}

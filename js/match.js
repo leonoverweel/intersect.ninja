@@ -1,25 +1,27 @@
 var matches = new Matches();
+var users = new Users();
+var progress = new Progress(
+	function() {
+		$('#progress').html('crunching playlists (' + progress.completed + ' / ' + progress.queue + ')');
+	},
+	function() {
+		matches.sort('users', 'desc', 'length', 'desc');
+		$('#progress').html('ready')
+		console.log(matches);
+	}
+);
 
 $(document).ready(function() {
-	localStorage.setItem('access_token', 'BQC8ppybdj480VCKWVDrbc7C2CCBR0diBcQG3fzmS2aSqZsgdlaNzrNJTzzttqim2DfkeiEXYfBE43W2-KZSYXCdAN-WFMIIUAieVLb_60tZQWkxSSQM2QoogV3l_yI5x1fh4T9YQMNI-kKrY7wQem1KySHm9DHlhiMd8khRcy3kPiKe0-GtP-ag_FOTR1p87A4');
+
+	// Authorization
+	localStorage.setItem('access_token', 'BQD6lAixOptZ_FTkHRc2HjWvzRld90y1rk6ackpacd4Nos_G6BLyaRcUtu6S2L3B1MsKX_GA_jBeFRquP7aB8NRTxLhS06NeOXfexZ8TFLGoaf8bz1eR_XD7aye-Pt8fHGYOYKSXj4sABPnBXGP3UDQteQStBHUXW3sptA9jx21eyHTbOFoivAPswVIaBnDUpPc');
+	console.log('Access token: ' + localStorage.getItem('access_token'));
+	console.log('Refresh token: ' + localStorage.getItem('refresh_token'));
 	
-	$('#access_token').html(localStorage.getItem('access_token'));
-	$('#refresh_token').html(localStorage.getItem('refresh_token'));
-	
-	var progress = new Progress(
-		function() {
-			$('#progress').html('Crunching your playlists (' + progress.completed + ' / ' + progress.queue + ')');
-		},
-		function() {
-			$('#ready').html('Done!');
-			matches.sort('users', 'desc', 'length', 'desc');
-			console.log(matches);
-		}
-	);
-		
+	// Get the current user;
 	getCurrentUser(progress);
 
-	getPublicPlaylistIds('1234654126', progress);
+	//users.add('1234654126', progress);
 });
 
 
@@ -308,11 +310,76 @@ Progress.prototype.complete = function() {
 
 
 /**
+ * Basic constructor for a User
+ * @param {string} userId - The id of the user to add
+ * @param {string} userName - the Name of the user to add
+ */
+function User(userId, userName) {
+	this.id = userId;
+	this.name = userName;
+};
+
+
+
+/**
+ * Basic constructor for a Users object
+ */
+function Users() {
+	this.users = [];
+}
+
+/**
+ * Add a new User to a Users object
+ * @param {string} userId - The id of the User to add
+ * @param {Progress} progress - The progress function to use while adding the user's playlists
+ */
+Users.prototype.add = function(userId, progress) {
+	var array = this.users;
+	
+	// If a URL or URI is passed, grab the id from that
+	if(userId.indexOf('user') != -1) {
+		userId = userId.substring(userId.indexOf('user') + 5);
+	}
+		
+	// Check if the user already exists
+	for(var i = 0; i < array.length; i++) {
+		if(array[i].id === userId) {
+			return;
+		}
+	}
+	
+	// Add the user
+	spotifyGet('https://api.spotify.com/v1/users/' + userId, function(data) {
+		
+		// Get the user's data
+		var userData = JSON.parse(data['responseText']);
+		var user = new User(userId, userData['display_name']);
+		
+		// Add the user to the users array
+		array.push(user);
+		
+		// Add the user to the displayed list of users
+		var userRow = document.createElement('tr');
+		var userCol1 = document.createElement('td');
+		userCol1.setAttribute('id', 'u-' + user.id);
+		userCol1.appendChild(document.createTextNode(user.name));
+		userRow.appendChild(userCol1);
+		$('#users').append(userRow);
+	});
+	
+	// Add the user's playlists
+	getPublicPlaylistIds(userId, progress);
+};
+
+
+/**
  * Get the current user's id and call getPublicPlaylistIds()
  */
 function getCurrentUser(progress) {
 	spotifyGet('https://api.spotify.com/v1/me', function(data) {
-		getPublicPlaylistIds(JSON.parse(data['responseText'])['id'], progress);
+		var userData = JSON.parse(data['responseText']);
+		$('#u-main').html('Hi ' + userData['display_name'] + '!');
+		users.add(userData['id'], progress);
 	});
 }
 
@@ -398,7 +465,8 @@ function spotifyGet(url, callback, error) {
 			// Reauthorize if access token incorrect
 			else if(data.status === 401) { 
 				// TO DO: reauthorization flow
-				console.log("Authorization error");
+				console.log("Authorization error. Redirecting to login page.");
+				window.location.replace('/');
 			}
 			
 			// Log other errors
