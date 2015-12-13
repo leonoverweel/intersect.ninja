@@ -14,14 +14,12 @@ var progress = new Progress(
 $(document).ready(function() {
 
 	// Authorization
-	localStorage.setItem('access_token', 'BQD6lAixOptZ_FTkHRc2HjWvzRld90y1rk6ackpacd4Nos_G6BLyaRcUtu6S2L3B1MsKX_GA_jBeFRquP7aB8NRTxLhS06NeOXfexZ8TFLGoaf8bz1eR_XD7aye-Pt8fHGYOYKSXj4sABPnBXGP3UDQteQStBHUXW3sptA9jx21eyHTbOFoivAPswVIaBnDUpPc');
+	//localStorage.setItem('access_token', 'BQD6lAixOptZ_FTkHRc2HjWvzRld90y1rk6ackpacd4Nos_G6BLyaRcUtu6S2L3B1MsKX_GA_jBeFRquP7aB8NRTxLhS06NeOXfexZ8TFLGoaf8bz1eR_XD7aye-Pt8fHGYOYKSXj4sABPnBXGP3UDQteQStBHUXW3sptA9jx21eyHTbOFoivAPswVIaBnDUpPc');
 	console.log('Access token: ' + localStorage.getItem('access_token'));
 	console.log('Refresh token: ' + localStorage.getItem('refresh_token'));
 	
 	// Get the current user;
 	getCurrentUser(progress);
-
-	//users.add('1234654126', progress);
 });
 
 
@@ -378,7 +376,6 @@ Users.prototype.add = function(userId, progress) {
 function getCurrentUser(progress) {
 	spotifyGet('https://api.spotify.com/v1/me', function(data) {
 		var userData = JSON.parse(data['responseText']);
-		$('#u-main').html('Hi ' + userData['display_name'] + '!');
 		users.add(userData['id'], progress);
 	});
 }
