@@ -53,6 +53,9 @@ table td {
     border-bottom: rgb(40, 40, 40) 1px solid;
     padding-bottom: 7px;
 }
+#u-new::-webkit-input-placeholder {
+	color: rgb(180, 180, 180);
+}
 
 #u-add {
     background: none;
