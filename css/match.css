@@ -8,12 +8,6 @@ p.small {
 	font-size: 0.7em;
 }
 
-.wrapper {
-	margin-top: 0px;
-	margin-bottom: 10px;
-	border-radius: 10px;
-}
-
 table {
 	margin: 0px;
 	padding: 0px;
@@ -78,7 +72,8 @@ table td {
 }
 
 .progress {
-	padding: 5px;
+	padding-top: 5px;
+	padding-bottom: 5px;
 	text-align: center;
 	border-top-left-radius: 0px;
 	border-top-right-radius: 0px;

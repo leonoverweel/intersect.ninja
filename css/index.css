@@ -13,10 +13,6 @@ html, body {
     vertical-align: middle;
 }
 
-.vertical-child div {
-	border-radius: 10px;
-}
-
 h1 {
 	margin-top: -6px;
 	margin-bottom: 10px;

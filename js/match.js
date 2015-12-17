@@ -46,7 +46,7 @@ var sorting = {
 $(document).ready(function() {
 
 	// Authorization
-	localStorage.setItem('access_token', 'BQDlFfdm7-7KDs4PbkYl3R2XQ_bDXXGZUWjwIaa07CdPxtJ6FvzV7pXsvbSTWOMa8kzqx3vxJWKBRYmlyKLTQIwvlvaVVIhOWKsXicTuIgn4BllhsQGQ02EoT-T7VlcjoTet0xe_nEYY7tja7IUE3TIvlzUZhYRXmYBHxGmJ2lI4gicgODfigUvSinnVSlNmKAQ');
+	localStorage.setItem('access_token', 'BQBgBLbnX8hDCYxuIx9orISurGNjzEpi4npG27fvSLn6Co3LxPFdHpbyM5uQke4s3hz0jLVn8DOH8IiCxU62CZhfcZzO1DTIeci5oUpEWpJVNUcm_aMUuqg2bRzS3Fl9PK6uqQ9tRx2mCDlGDKsKpHaALg9uBf-iEdP0d0qeKrsO0hjODaenKWRGg8XaYnek9Eg');
 	console.log('Access token: ' + localStorage.getItem('access_token'));
 	console.log('Refresh token: ' + localStorage.getItem('refresh_token'));
 	
