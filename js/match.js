@@ -6,7 +6,8 @@ var progress = new Progress(
 	},
 	function() {
 		matches.sort('users', 'desc', 'length', 'desc');
-		$('#progress').html('ready')
+		$('#progress').html('ready');
+		displayArtists(matches.artists);
 		console.log(matches);
 	}
 );
@@ -14,7 +15,7 @@ var progress = new Progress(
 $(document).ready(function() {
 
 	// Authorization
-	//localStorage.setItem('access_token', 'BQD6lAixOptZ_FTkHRc2HjWvzRld90y1rk6ackpacd4Nos_G6BLyaRcUtu6S2L3B1MsKX_GA_jBeFRquP7aB8NRTxLhS06NeOXfexZ8TFLGoaf8bz1eR_XD7aye-Pt8fHGYOYKSXj4sABPnBXGP3UDQteQStBHUXW3sptA9jx21eyHTbOFoivAPswVIaBnDUpPc');
+	localStorage.setItem('access_token', 'BQCnZU2U53SfCA5ZJzetda8twWOIBh-Ncqiwy4GK3TY4Jdk5GRZwXorzUDxumasmEOWFBqaVWOeA0-9mIw83hgghylS_x-OYjfzb_9P77RcCJQmyIFEsjKmb3Rf8_5EtyFVNcQLJSLlIjLfYtctBqToWlHd39L8ifV4SZbM_yZ4ll4qcfI1mXPLxtZHlgTmzpdQ');
 	console.log('Access token: ' + localStorage.getItem('access_token'));
 	console.log('Refresh token: ' + localStorage.getItem('refresh_token'));
 	
@@ -358,8 +359,8 @@ Users.prototype.add = function(userId, progress) {
 		
 		// Add the user to the displayed list of users
 		var userRow = document.createElement('tr');
+		userRow.setAttribute('id', 'u-' + user.id);
 		var userCol1 = document.createElement('td');
-		userCol1.setAttribute('id', 'u-' + user.id);
 		userCol1.appendChild(document.createTextNode(user.name));
 		userRow.appendChild(userCol1);
 		$('#users').append(userRow);
@@ -368,6 +369,7 @@ Users.prototype.add = function(userId, progress) {
 	// Add the user's playlists
 	getPublicPlaylistIds(userId, progress);
 };
+
 
 
 /**
@@ -472,4 +474,45 @@ function spotifyGet(url, callback, error) {
 			}
 		}
 	});
+}
+
+
+
+/**
+ * Display the array of artists
+ * @param {object} array - the array of artists to display
+ */
+function displayArtists(array) {
+	
+	// Remove the old table
+	var len = $('#artists tbody').children().length
+	for(var i = 0; i < len - 1; i++) {
+		$('#artists tbody tr').last().remove();
+	}
+	
+	// Add the artists back
+	for(var i = 0; i < array.length; i++) {
+		var artist = array[i];
+		
+		// Add the artist to the displayed list of artists
+		var row = document.createElement('tr');
+		row.setAttribute('id', 'a-' + artist.artistId);
+		
+		// Add the artist's name
+		var colName = document.createElement('td');
+		colName.appendChild(document.createTextNode(artist.artistName));
+		row.appendChild(colName);
+
+		// Add the artist's tracks
+		var colTracks = document.createElement('td');
+		colTracks.appendChild(document.createTextNode(artist.tracks.length));
+		row.appendChild(colTracks);
+		
+		// Add the artist's name
+		var colUsers = document.createElement('td');
+		colUsers.appendChild(document.createTextNode(artist.getUserCount()));
+		row.appendChild(colUsers);
+
+		$('#artists').append(row);
+	}
 }
