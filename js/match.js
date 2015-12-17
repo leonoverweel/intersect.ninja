@@ -7,14 +7,13 @@ var progress = new Progress(
 	function() {
 		matches.sort('users', 'desc', 'users', 'desc');
 		$('#progress').html('ready');
-		displayArtists(matches.artists);
 		console.log(matches);
 	}
 );
 
 var sorting = {
 	'length': function(a, b, order) {
-		return (order === 'asc') ? (a.trackLengthMs - b.trackLengthMs) : (b.trackLengthMs - a.trackLengthMs);
+		return (order === 'asc') ? (a.length - b.length) : (b.length - a.length);
 	},
 	'name': function(a, b, order) {
 		var nameA = a.name.toLowerCase();
@@ -62,8 +61,8 @@ $(document).ready(function() {
  * @param {string} trackId - The track's id
  */
 function Track(trackId) {
-	this.trackId = trackId;
-	this.trackLengthMs;
+	this.id = trackId;
+	this.length;
 	this.name;
 	this.userIds = [];
 };
@@ -109,7 +108,7 @@ Artist.prototype.addTrack = function(trackId, userId) {
 	// Get the index of the track (if it's been added before)
 	var index = -1;
 	for(var i = 0; i < this.tracks.length; i++) {
-		if(this.tracks[i].trackId === trackId) {
+		if(this.tracks[i].id === trackId) {
 			index = i;
 		}
 	}
@@ -134,7 +133,7 @@ Artist.prototype.addTrack = function(trackId, userId) {
  */
 Artist.prototype.getTrack = function(trackId) {
 	for(var i = 0; i < this.tracks.length; i++)
-		if(this.tracks[i].trackId === trackId)
+		if(this.tracks[i].id === trackId)
 			return this.tracks[i];
 	return 0;
 };
@@ -159,7 +158,7 @@ Artist.prototype.getUserCount = function() {
 
 /**
  * Sort the artist's tracks by how many users added them, in decreasing order
- * @param {string} sortBy - The type of sort to perform (options: 'users', 'alph')
+ * @param {string} sortBy - The type of sort to perform (options: 'users', 'name', 'length')
  * @param {string} order - Order in which to sort (options: 'asc', 'desc')
  */
 Artist.prototype.sort = function(sortBy, order) {
@@ -229,15 +228,16 @@ Matches.prototype.getArtist = function(artistId) {
 
 /**
  * Sort the artists by how many users added them, in decreasing order
- * @param {string} sortBy - The type of sort to perform (options: 'users', 'alph')
+ * @param {string} sortBy - The type of sort to perform (options: 'users', 'name')
  * @param {string} order - Order in which to sort (options: 'asc', 'desc')
- * @param {string} [trackSortBy] - The type of sort to perform (options: 'users', 'alph' default same as sortBy)
- * @param {string} [trackOrder] - Order in which to sort (options: 'asc', 'desc', default same as order)
+ * @param {string} [trackSortBy] - The type of sort to perform (options: 'users', 'name')
+ * @param {string} [trackOrder] - Order in which to sort (options: 'asc', 'desc')
  */
 Matches.prototype.sort = function(sortBy, order, trackSortBy, trackOrder) {
 	var sorted = this.artists;
 	var sortFunction = sorting[sortBy];
 	
+	// Sort using the sort function
 	sorted = sorted.sort(function(a, b) {
 		return sortFunction(a, b, order);
 	});
@@ -248,6 +248,9 @@ Matches.prototype.sort = function(sortBy, order, trackSortBy, trackOrder) {
 			sorted[i].sort(trackSortBy, trackOrder);
 		}
 	}
+	
+	// Update the UI
+	displayArtists(matches.artists);
 	
 	return sorted;
 };
@@ -394,7 +397,7 @@ function crunchPlaylist(userId, playlistId, progress) {
 						// Add the track data
 						var track = artist.getTrack(trackId);
 						track.name = tracks[i]['track']['name'];
-						track.trackLengthMs = tracks[i]['track']['duration_ms'];
+						track.length = tracks[i]['track']['duration_ms'];
 					}
 				}
 			}
