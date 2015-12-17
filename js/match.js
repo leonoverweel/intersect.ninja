@@ -5,17 +5,49 @@ var progress = new Progress(
 		$('#progress').html('crunching playlists (' + progress.completed + ' / ' + progress.queue + ')');
 	},
 	function() {
-		matches.sort('users', 'desc', 'length', 'desc');
+		matches.sort('users', 'desc', 'users', 'desc');
 		$('#progress').html('ready');
 		displayArtists(matches.artists);
 		console.log(matches);
 	}
 );
 
+var sorting = {
+	'length': function(a, b, order) {
+		return (order === 'asc') ? (a.trackLengthMs - b.trackLengthMs) : (b.trackLengthMs - a.trackLengthMs);
+	},
+	'name': function(a, b, order) {
+		var nameA = a.name.toLowerCase();
+		var nameB = b.name.toLowerCase();
+		if(nameA < nameB) {
+			return (order === 'asc') ? -1 : 1;
+		}
+		else if(nameA > nameB) {
+			return (order === 'asc') ? 1 : -1;
+		}
+		else {
+			return 0;
+		}
+	},
+	'users': function(a,b, order) {
+		var countA = a.getUserCount();
+		var countB = b.getUserCount();
+		if(countA != countB) {
+			return (order === 'asc') ? (countA - countB) : (countB - countA);
+		}
+		return sorting.name(a, b, 'asc');
+	}
+}
+
+
+
+/**
+ * Start up the app
+ */
 $(document).ready(function() {
 
 	// Authorization
-	localStorage.setItem('access_token', 'BQCnZU2U53SfCA5ZJzetda8twWOIBh-Ncqiwy4GK3TY4Jdk5GRZwXorzUDxumasmEOWFBqaVWOeA0-9mIw83hgghylS_x-OYjfzb_9P77RcCJQmyIFEsjKmb3Rf8_5EtyFVNcQLJSLlIjLfYtctBqToWlHd39L8ifV4SZbM_yZ4ll4qcfI1mXPLxtZHlgTmzpdQ');
+	localStorage.setItem('access_token', 'BQDlFfdm7-7KDs4PbkYl3R2XQ_bDXXGZUWjwIaa07CdPxtJ6FvzV7pXsvbSTWOMa8kzqx3vxJWKBRYmlyKLTQIwvlvaVVIhOWKsXicTuIgn4BllhsQGQ02EoT-T7VlcjoTet0xe_nEYY7tja7IUE3TIvlzUZhYRXmYBHxGmJ2lI4gicgODfigUvSinnVSlNmKAQ');
 	console.log('Access token: ' + localStorage.getItem('access_token'));
 	console.log('Refresh token: ' + localStorage.getItem('refresh_token'));
 	
@@ -32,7 +64,7 @@ $(document).ready(function() {
 function Track(trackId) {
 	this.trackId = trackId;
 	this.trackLengthMs;
-	this.trackName;
+	this.name;
 	this.userIds = [];
 };
 
@@ -62,7 +94,7 @@ Track.prototype.getUserCount = function() {
  */
 function Artist(artistId) {
 	this.artistId = artistId;
-	this.artistName;
+	this.name;
 	this.tracks = [];
 	this.userIds = [];
 };
@@ -132,42 +164,12 @@ Artist.prototype.getUserCount = function() {
  */
 Artist.prototype.sort = function(sortBy, order) {
 	var sorted = this.tracks;
+	var sortFunction = sorting[sortBy];
 	
-	// Sort by users
-	if(sortBy === 'users') {
-		sorted = sorted.sort(function(a, b) {
-			return a.getUserCount() - b.getUserCount();
-		});
-	}
+	sorted = sorted.sort(function(a, b) {
+		return sortFunction(a, b, order);
+	});
 	
-	// Sort alphabetically
-	else if(sortBy === 'alph') {
-		sorted = sorted.sort(function(a, b) {
-			var trackNameA = a.trackName.toLowerCase();
-			var trackNameB = b.trackName.toLowerCase();
-			if(trackNameA < trackNameB) {
-				return -1;
-			}
-			else if(trackNameA > trackNameB) {
-				return 1;
-			}
-			else {
-				return 0;
-			}
-		});
-	}
-	
-	// Sort by track length
-	else if(sortBy === 'length') {
-		sorted = sorted.sort(function(a, b) {
-			return b.trackLengthMs - a.trackLengthMs
-		});
-	}
-	
-	// Order
-	if(order === 'desc') {
-		sorted.reverse();
-	}
 	return sorted;
 };
 
@@ -234,43 +236,19 @@ Matches.prototype.getArtist = function(artistId) {
  */
 Matches.prototype.sort = function(sortBy, order, trackSortBy, trackOrder) {
 	var sorted = this.artists;
+	var sortFunction = sorting[sortBy];
 	
-	// Sort by users
-	if(sortBy === 'users') {
-		sorted = sorted.sort(function(a, b) {
-			return a.getUserCount() - b.getUserCount();
-		});
-	}
-	
-	// Sort alphabetically
-	else if(sortBy === 'alph') {
-		sorted = sorted.sort(function(a, b) {
-			var artistNameA = a.artistName.toLowerCase();
-			var artistNameB = b.artistName.toLowerCase();
-			if(artistNameA < artistNameB) {
-				return -1;
-			}
-			else if(artistNameA > artistNameB) {
-				return 1;
-			}
-			else {
-				return 0;
-			}
-		});
-	}
+	sorted = sorted.sort(function(a, b) {
+		return sortFunction(a, b, order);
+	});
 	
 	// Sort artists' tracks
-	for(var i = 0; i < sorted.length; i++) {
-		sorted[i].sort(
-			(trackSortBy != null) ? trackSortBy : sortBy, 
-			(trackOrder != null) ? trackOrder : order
-		);
+	if(trackSortBy != null && trackOrder != null) {
+		for(var i = 0; i < sorted.length; i++) {
+			sorted[i].sort(trackSortBy, trackOrder);
+		}
 	}
 	
-	// Reverse if descending
-	if(order === 'desc') {
-		sorted.reverse()
-	}
 	return sorted;
 };
 
@@ -411,11 +389,11 @@ function crunchPlaylist(userId, playlistId, progress) {
 						
 						// Add the artist data
 						var artist = matches.getArtist(trackArtists[j]['id']);
-						artist.artistName = trackArtists[j]['name'];
+						artist.name = trackArtists[j]['name'];
 						
 						// Add the track data
 						var track = artist.getTrack(trackId);
-						track.trackName = tracks[i]['track']['name'];
+						track.name = tracks[i]['track']['name'];
 						track.trackLengthMs = tracks[i]['track']['duration_ms'];
 					}
 				}
@@ -500,7 +478,7 @@ function displayArtists(array) {
 		
 		// Add the artist's name
 		var colName = document.createElement('td');
-		colName.appendChild(document.createTextNode(artist.artistName));
+		colName.appendChild(document.createTextNode(artist.name));
 		row.appendChild(colName);
 
 		// Add the artist's tracks
