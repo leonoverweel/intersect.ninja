@@ -5,17 +5,30 @@ var progress = new Progress(
 		$('#progress').html('crunching playlists (' + progress.completed + ' / ' + progress.queue + ')');
 	},
 	function() {
-		matches.sort('users', 'desc', 'users', 'desc');
+		matches.sort(
+			'users', 'desc', [			// Main sort
+				'tracks', 'desc',		// Tie breaker 1
+				'name', 'asc'			// Tie breaker 2
+			], 
+			'users', 'desc', [			// Track main sort
+				'name', 'asc'			// Track tie breaker 1
+			]
+		);
 		$('#progress').html('ready');
 		console.log(matches);
 	}
 );
 
+// Sorting
 var sorting = {
-	'length': function(a, b, order) {
+	
+	// Sort tracks by their length
+	'length': function(a, b, order, ties) {
 		return (order === 'asc') ? (a.length - b.length) : (b.length - a.length);
 	},
-	'name': function(a, b, order) {
+	
+	// Sort tracks or artists alphabetically by their name
+	'name': function(a, b, order, ties) {
 		var nameA = a.name.toLowerCase();
 		var nameB = b.name.toLowerCase();
 		if(nameA < nameB) {
@@ -24,19 +37,38 @@ var sorting = {
 		else if(nameA > nameB) {
 			return (order === 'asc') ? 1 : -1;
 		}
-		else {
-			return 0;
+		if(ties != null && Object.prototype.toString.call(ties) === '[object Array]' && ties.length > 1) {
+			return sorting[ties[0]](a, b, ties[1], ties.slice(2));
 		}
+		return 0;
 	},
-	'users': function(a,b, order) {
+	
+	// Sort artists by how many tracks they have
+	'tracks': function(a, b, order, ties) {
+		var tracksA = a.tracks.length;
+		var tracksB = b.tracks.length;
+		if(tracksA != tracksB) {
+			return (order === 'asc') ? (tracksA - tracksB) : (tracksB - tracksA);
+		}
+		if(ties != null && Object.prototype.toString.call(ties) === '[object Array]' && ties.length > 1) {
+			return sorting[ties[0]](a, b, ties[1], ties.slice(2));
+		}
+		return 0;
+	},
+	
+	// Sort artists or tracks by how many users added them
+	'users': function(a,b, order, ties) {
 		var countA = a.getUserCount();
 		var countB = b.getUserCount();
 		if(countA != countB) {
 			return (order === 'asc') ? (countA - countB) : (countB - countA);
 		}
-		return sorting.name(a, b, 'asc');
+		if(ties != null && Object.prototype.toString.call(ties) === '[object Array]' && ties.length > 1) {
+			return sorting[ties[0]](a, b, ties[1], ties.slice(2));
+		}
+		return 0;
 	}
-}
+};
 
 
 
@@ -46,7 +78,7 @@ var sorting = {
 $(document).ready(function() {
 
 	// Authorization
-	//localStorage.setItem('access_token', 'BQBgBLbnX8hDCYxuIx9orISurGNjzEpi4npG27fvSLn6Co3LxPFdHpbyM5uQke4s3hz0jLVn8DOH8IiCxU62CZhfcZzO1DTIeci5oUpEWpJVNUcm_aMUuqg2bRzS3Fl9PK6uqQ9tRx2mCDlGDKsKpHaALg9uBf-iEdP0d0qeKrsO0hjODaenKWRGg8XaYnek9Eg');
+	localStorage.setItem('access_token', 'BQCtUfsq30GsGO6sVEwMdzIYOELaGrW9MbEvN6FkF23walx6uybjDpAdYCc_tvX41HKaqwYUchaLV5cK1Hj-R14lxL1DllQxIAeB17ZvnCvLWfuerLdenhHaCJ-sFM_TTCI7L-O2Knnbu3X9nznluBpiF7f86zYZWMm7z4RQOU5f0hx2laS9oVkekpmto2BZbXM');
 	console.log('Access token: ' + localStorage.getItem('access_token'));
 	console.log('Refresh token: ' + localStorage.getItem('refresh_token'));
 	
@@ -233,13 +265,13 @@ Matches.prototype.getArtist = function(artistId) {
  * @param {string} [trackSortBy] - The type of sort to perform (options: 'users', 'name')
  * @param {string} [trackOrder] - Order in which to sort (options: 'asc', 'desc')
  */
-Matches.prototype.sort = function(sortBy, order, trackSortBy, trackOrder) {
+Matches.prototype.sort = function(sortBy, order, ties, trackSortBy, trackOrder, trackTies) {
 	var sorted = this.artists;
 	var sortFunction = sorting[sortBy];
 	
 	// Sort using the sort function
 	sorted = sorted.sort(function(a, b) {
-		return sortFunction(a, b, order);
+		return sortFunction(a, b, order, ties);
 	});
 	
 	// Sort artists' tracks
