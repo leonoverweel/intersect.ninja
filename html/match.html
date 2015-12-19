@@ -27,7 +27,7 @@
 				</tr>
 			</table>
 			<input type="text" id="u-new" autocomplete=off placeholder="Paste a user's Profile Link here and click Add" onkeydown="if (event.keyCode == 13) $('#u-add').click()"/></input>
-			<button id="u-add" onclick="users.add($('#u-new')[0]['value'], progress); $('#u-new').val('');">Add</button>
+			<button id="u-add" onclick="users.add($('#u-new')[0]['value'], progress); $('#u-new').val('');">add</button>
 			<p class="small last">You can find someone's Profile Link by going to their profile on Spotify, clicking the ... button below their name, and clicking <i>Copy Profile Link</i>.</p>
 		</div>
 		
@@ -40,6 +40,7 @@
 					<td style="width: 10%;">Users</td>
 				</tr>
 			</table>
+			<p id="show-more" class="last"><a onclick="showMore()">loading...</a></p>
 		</div>
 		
 		<div class="wrapper footer">

@@ -84,3 +84,18 @@ table td {
 	font-size: 0.9em;
 	color: rgb(255, 255, 255);
 }
+
+#show-more {
+    margin-top: 10px;
+    text-align: center;
+}
+
+#show-more a {
+    border-bottom: rgb(40,40,40) 1px solid;
+    padding: 5px;
+    cursor: pointer;
+}
+
+#show-more a:hover {
+    background: rgb(40, 40, 40);
+}

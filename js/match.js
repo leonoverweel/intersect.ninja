@@ -1,5 +1,7 @@
 var matches = new Matches();
 var users = new Users();
+var limitCurrent;
+var limitDelta = 20;
 var progress = new Progress(
 	function() {
 		$('#progress').html('crunching playlists (' + progress.completed + ' / ' + progress.queue + ')');
@@ -15,6 +17,7 @@ var progress = new Progress(
 			]
 		);
 		$('#progress').html('ready');
+		$('#show-more a').html('show more');
 		console.log(matches);
 	}
 );
@@ -78,7 +81,7 @@ var sorting = {
 $(document).ready(function() {
 
 	// Authorization
-	localStorage.setItem('access_token', 'BQCtUfsq30GsGO6sVEwMdzIYOELaGrW9MbEvN6FkF23walx6uybjDpAdYCc_tvX41HKaqwYUchaLV5cK1Hj-R14lxL1DllQxIAeB17ZvnCvLWfuerLdenhHaCJ-sFM_TTCI7L-O2Knnbu3X9nznluBpiF7f86zYZWMm7z4RQOU5f0hx2laS9oVkekpmto2BZbXM');
+	//localStorage.setItem('access_token', 'BQCqh7-P6bOuySgeR5qF1RJH-3LvwD-Jw9U-oGBmQ1YHNUXZyzdDxek67pkQ9eJiLwQWSlPu7IkvgSc2Nx86uwQiGhQjv6O8xnU_OnmgKTAqn9hJF_C7nys-Aqk1HxzYVDrIA9nixHDm_GRAjIfcKFwrl3ctSc1S-VHWtn3MNtWVgjzADURCw7xuZYRCzyTAZ8o');
 	console.log('Access token: ' + localStorage.getItem('access_token'));
 	console.log('Refresh token: ' + localStorage.getItem('refresh_token'));
 	
@@ -282,7 +285,8 @@ Matches.prototype.sort = function(sortBy, order, ties, trackSortBy, trackOrder, 
 	}
 	
 	// Update the UI
-	displayArtists(matches.artists);
+	limitCurrent = limitDelta;
+	displayArtists(matches.artists, 0, limitCurrent);
 	
 	return sorted;
 };
@@ -494,17 +498,25 @@ function spotifyGet(url, callback, error) {
 /**
  * Display the array of artists
  * @param {object} array - the array of artists to display
+ * @param {number} offset - the index of the array to start
+ * @param {numer} limit - the index of the array to stop
  */
-function displayArtists(array) {
+function displayArtists(array, offset, limit) {
 	
 	// Remove the old table
-	var len = $('#artists tbody').children().length
-	for(var i = 0; i < len - 1; i++) {
-		$('#artists tbody tr').last().remove();
+	if(offset === null || offset === 0) {
+		var len = $('#artists tbody').children().length
+		for(var i = 0; i < len - 1; i++) {
+			$('#artists tbody tr').last().remove();
+		}
 	}
+
+	// Show subset of results
+	var start; (offset === null) ? start = 0 : start = offset;
+	var end; (limit === null) ? end = array.length : end = Math.min(array.length, limit);
 	
 	// Add the artists back
-	for(var i = 0; i < array.length; i++) {
+	for(var i = start; i < end; i++) {
 		var artist = array[i];
 		
 		// Add the artist to the displayed list of artists
@@ -528,4 +540,11 @@ function displayArtists(array) {
 
 		$('#artists').append(row);
 	}
+}
+
+function showMore() {
+	var start = $('#artists tbody').children().length - 1;
+	var end = start + limitDelta;
+	
+	displayArtists(matches['artists'], start, end);
 }
