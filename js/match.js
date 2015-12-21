@@ -1,7 +1,13 @@
+/**
+ * GLOBAL VARIABLES
+ */
+
 var matches = new Matches();
 var users = new Users();
 var limitCurrent;
 var limitDelta = 20;
+
+// Progress function
 var progress = new Progress(
 	function() {
 		$('#progress').html('crunching playlists (' + progress.completed + ' / ' + progress.queue + ')');
@@ -92,33 +98,177 @@ $(document).ready(function() {
 
 
 /**
- * Basic constructor for a new Track
- * @param {string} trackId - The track's id
+ * FUNCTIONS
  */
-function Track(trackId) {
-	this.id = trackId;
-	this.length;
-	this.name;
-	this.userIds = [];
+
+
+
+/**
+ * Add each track in the playlist to matches
+ */
+function crunchPlaylist(userId, playlistId, progress) {
+	spotifyGet(
+		'https://api.spotify.com/v1/users/' + userId + '/playlists/' + playlistId, 
+		
+		// Playlist found
+		function(data) {
+			var tracks = JSON.parse(data['responseText'])['tracks']['items'];
+			
+			// Loop through playlist tracks
+			for(var i = 0; i < tracks.length; i++) {
+				
+				// Get track id
+				var trackId = tracks[i]['track']['id'];
+				
+				// Loop through the track's artists
+				var trackArtists = tracks[i]['track']['artists'];
+				for(var j = 0; j < trackArtists.length; j++) {
+					
+					// Make sure there are no null ids
+					if(trackArtists[j]['id'] != null && trackId != null) {
+						
+						// Add the track and song
+						matches.add(trackArtists[j]['id'], trackId, userId);
+						
+						// Add the artist data
+						var artist = matches.getArtist(trackArtists[j]['id']);
+						artist.name = trackArtists[j]['name'];
+						
+						// Add the track data
+						var track = artist.getTrack(trackId);
+						track.name = tracks[i]['track']['name'];
+						track.length = tracks[i]['track']['duration_ms'];
+					}
+				}
+			}
+			progress.complete();
+		},
+		
+		// Playlist not found
+		function(data) {
+			progress.complete();
+		}
+	);
 };
 
 /**
- * Add a user to this track
- * @param {string} userId - The id of the user to add
+ * Display the array of artists
+ * @param {object} array - the array of artists to display
+ * @param {number} offset - the index of the array to start
+ * @param {numer} limit - the index of the array to stop
  */
-Track.prototype.addUser = function(userId) {
-	if(this.userIds.indexOf(userId) === -1) {
-		this.userIds.push(userId);
+function displayArtists(array, offset, limit) {
+	
+	// Remove the old table
+	if(offset === null || offset === 0) {
+		var len = $('#artists tbody').children().length
+		for(var i = 0; i < len - 1; i++) {
+			$('#artists tbody tr').last().remove();
+		}
+	}
+
+	// Show subset of results
+	var start; (offset === null) ? start = 0 : start = offset;
+	var end; (limit === null) ? end = array.length : end = Math.min(array.length, limit);
+	
+	// Add the artists back
+	for(var i = start; i < end; i++) {
+		var artist = array[i];
+		
+		// Add the artist to the displayed list of artists
+		var row = document.createElement('tr');
+		row.setAttribute('id', 'a-' + artist.artistId);
+		
+		// Add the artist's name
+		var colName = document.createElement('td');
+		colName.appendChild(document.createTextNode(artist.name));
+		row.appendChild(colName);
+
+		// Add the artist's tracks
+		var colTracks = document.createElement('td');
+		colTracks.appendChild(document.createTextNode(artist.tracks.length));
+		row.appendChild(colTracks);
+		
+		// Add the artist's name
+		var colUsers = document.createElement('td');
+		colUsers.appendChild(document.createTextNode(artist.getUserCount()));
+		row.appendChild(colUsers);
+
+		$('#artists').append(row);
 	}
 };
 
 /**
- * Get the amount of users who added this track
- * @returns {number} The amount of users who added this track
+ * Get the current user's id and call getPublicPlaylistIds()
  */
-Track.prototype.getUserCount = function() {
-	return this.userIds.length;
+function getCurrentUser(progress) {
+	spotifyGet('https://api.spotify.com/v1/me', function(data) {
+		var userData = JSON.parse(data['responseText']);
+		users.add(userData['id'], progress);
+	});
 };
+
+/**
+ * Get a user's playlists by their id
+ * @param {string} userId - The id of the user whose public playlists to get
+ */
+function getPublicPlaylistIds(userId, progress) {
+	spotifyGet('https://api.spotify.com/v1/users/' + userId + '/playlists?limit=50', function(data) {
+		var playlists = JSON.parse(data['responseText'])['items'];
+		for(var i = 0; i < playlists.length; i++) {
+			progress.add();
+			crunchPlaylist(userId, playlists[i]['id'], progress);
+		}
+	});
+};
+
+/**
+ * Show more artists in the artists table
+ */
+function showMore() {
+	var start = $('#artists tbody').children().length - 1;
+	var end = start + limitDelta;
+	
+	displayArtists(matches['artists'], start, end);
+};
+
+/**
+ * Send a GET request for some data to Spotify, and execute a function on the response
+ * @param {string} url - The url to GET from Spotify
+ * @param {function} callback - The function to execute on a response, if it is correct
+ * @param {function} error - The function to call on an incorrect response
+ */
+function spotifyGet(url, callback, error) {
+	$.ajax({
+		url: url,
+		beforeSend: function(xhr, settings) { 
+			xhr.setRequestHeader('Authorization','Bearer ' + localStorage.getItem('access_token')); 
+		}, 
+		complete: function(data) {
+			
+			// Execute callback if status code is 200
+			if(data.status === 200) { callback(data); }
+			
+			// Reauthorize if access token incorrect
+			else if(data.status === 401) { 
+				// TO DO: reauthorization flow
+				console.log("Authorization error. Redirecting to login page.");
+				window.location.replace('/');
+			}
+			
+			// Log other errors
+			else {
+				error(data);
+			}
+		}
+	});
+};
+
+
+
+/**
+ * CLASSES
+ */
 
 
 
@@ -326,6 +476,37 @@ Progress.prototype.complete = function() {
 
 
 /**
+ * Basic constructor for a new Track
+ * @param {string} trackId - The track's id
+ */
+function Track(trackId) {
+	this.id = trackId;
+	this.length;
+	this.name;
+	this.userIds = [];
+};
+
+/**
+ * Add a user to this track
+ * @param {string} userId - The id of the user to add
+ */
+Track.prototype.addUser = function(userId) {
+	if(this.userIds.indexOf(userId) === -1) {
+		this.userIds.push(userId);
+	}
+};
+
+/**
+ * Get the amount of users who added this track
+ * @returns {number} The amount of users who added this track
+ */
+Track.prototype.getUserCount = function() {
+	return this.userIds.length;
+};
+
+
+
+/**
  * Basic constructor for a User
  * @param {string} userId - The id of the user to add
  * @param {string} userName - The name of the user to add
@@ -407,165 +588,3 @@ Users.prototype.get = function(userId) {
 	}
 	return null;
 };
-
-
-
-/**
- * Get the current user's id and call getPublicPlaylistIds()
- */
-function getCurrentUser(progress) {
-	spotifyGet('https://api.spotify.com/v1/me', function(data) {
-		var userData = JSON.parse(data['responseText']);
-		users.add(userData['id'], progress);
-	});
-}
-
-/**
- * Add each track in the playlist to matches
- */
-function crunchPlaylist(userId, playlistId, progress) {
-	spotifyGet(
-		'https://api.spotify.com/v1/users/' + userId + '/playlists/' + playlistId, 
-		
-		// Playlist found
-		function(data) {
-			var tracks = JSON.parse(data['responseText'])['tracks']['items'];
-			
-			// Loop through playlist tracks
-			for(var i = 0; i < tracks.length; i++) {
-				
-				// Get track id
-				var trackId = tracks[i]['track']['id'];
-				
-				// Loop through the track's artists
-				var trackArtists = tracks[i]['track']['artists'];
-				for(var j = 0; j < trackArtists.length; j++) {
-					
-					// Make sure there are no null ids
-					if(trackArtists[j]['id'] != null && trackId != null) {
-						
-						// Add the track and song
-						matches.add(trackArtists[j]['id'], trackId, userId);
-						
-						// Add the artist data
-						var artist = matches.getArtist(trackArtists[j]['id']);
-						artist.name = trackArtists[j]['name'];
-						
-						// Add the track data
-						var track = artist.getTrack(trackId);
-						track.name = tracks[i]['track']['name'];
-						track.length = tracks[i]['track']['duration_ms'];
-					}
-				}
-			}
-			progress.complete();
-		},
-		
-		// Playlist not found
-		function(data) {
-			progress.complete();
-		}
-	);
-}
-
-/**
- * Get a user's playlists by their id
- * @param {string} userId - The id of the user whose public playlists to get
- */
-function getPublicPlaylistIds(userId, progress) {
-	spotifyGet('https://api.spotify.com/v1/users/' + userId + '/playlists?limit=50', function(data) {
-		var playlists = JSON.parse(data['responseText'])['items'];
-		for(var i = 0; i < playlists.length; i++) {
-			progress.add();
-			crunchPlaylist(userId, playlists[i]['id'], progress);
-		}
-	});
-}
-
-/**
- * Send a GET request for some data to Spotify, and execute a function on the response
- * @param {string} url - The url to GET from Spotify
- * @param {function} callback - The function to execute on a response, if it is correct
- * @param {function} error - The function to call on an incorrect response
- */
-function spotifyGet(url, callback, error) {
-	$.ajax({
-		url: url,
-		beforeSend: function(xhr, settings) { 
-			xhr.setRequestHeader('Authorization','Bearer ' + localStorage.getItem('access_token')); 
-		}, 
-		complete: function(data) {
-			
-			// Execute callback if status code is 200
-			if(data.status === 200) { callback(data); }
-			
-			// Reauthorize if access token incorrect
-			else if(data.status === 401) { 
-				// TO DO: reauthorization flow
-				console.log("Authorization error. Redirecting to login page.");
-				window.location.replace('/');
-			}
-			
-			// Log other errors
-			else {
-				error(data);
-			}
-		}
-	});
-}
-
-
-
-/**
- * Display the array of artists
- * @param {object} array - the array of artists to display
- * @param {number} offset - the index of the array to start
- * @param {numer} limit - the index of the array to stop
- */
-function displayArtists(array, offset, limit) {
-	
-	// Remove the old table
-	if(offset === null || offset === 0) {
-		var len = $('#artists tbody').children().length
-		for(var i = 0; i < len - 1; i++) {
-			$('#artists tbody tr').last().remove();
-		}
-	}
-
-	// Show subset of results
-	var start; (offset === null) ? start = 0 : start = offset;
-	var end; (limit === null) ? end = array.length : end = Math.min(array.length, limit);
-	
-	// Add the artists back
-	for(var i = start; i < end; i++) {
-		var artist = array[i];
-		
-		// Add the artist to the displayed list of artists
-		var row = document.createElement('tr');
-		row.setAttribute('id', 'a-' + artist.artistId);
-		
-		// Add the artist's name
-		var colName = document.createElement('td');
-		colName.appendChild(document.createTextNode(artist.name));
-		row.appendChild(colName);
-
-		// Add the artist's tracks
-		var colTracks = document.createElement('td');
-		colTracks.appendChild(document.createTextNode(artist.tracks.length));
-		row.appendChild(colTracks);
-		
-		// Add the artist's name
-		var colUsers = document.createElement('td');
-		colUsers.appendChild(document.createTextNode(artist.getUserCount()));
-		row.appendChild(colUsers);
-
-		$('#artists').append(row);
-	}
-}
-
-function showMore() {
-	var start = $('#artists tbody').children().length - 1;
-	var end = start + limitDelta;
-	
-	displayArtists(matches['artists'], start, end);
-}
