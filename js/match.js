@@ -81,7 +81,7 @@ var sorting = {
 $(document).ready(function() {
 
 	// Authorization
-	//localStorage.setItem('access_token', 'BQCqh7-P6bOuySgeR5qF1RJH-3LvwD-Jw9U-oGBmQ1YHNUXZyzdDxek67pkQ9eJiLwQWSlPu7IkvgSc2Nx86uwQiGhQjv6O8xnU_OnmgKTAqn9hJF_C7nys-Aqk1HxzYVDrIA9nixHDm_GRAjIfcKFwrl3ctSc1S-VHWtn3MNtWVgjzADURCw7xuZYRCzyTAZ8o');
+	localStorage.setItem('access_token', 'BQCPHN023yUSXl4fLDWk9QSCxuLfIxt9yuB7aZGOFDsqLP_2OgQVlb46XaQFKOTqr1PTlCCYLa1WUi8Yqo-u4jWT0hu7CWAd0BvPK_1QS5qBnlreJ5Q-eHFZR0hJZ-GPLBxtAhebPuqLvv1HzhKPXpEJYV_9uetw_H1t3BnCqPgPoO67Sr_5lWux4cNFFooLlNo');
 	console.log('Access token: ' + localStorage.getItem('access_token'));
 	console.log('Refresh token: ' + localStorage.getItem('refresh_token'));
 	
@@ -328,11 +328,12 @@ Progress.prototype.complete = function() {
 /**
  * Basic constructor for a User
  * @param {string} userId - The id of the user to add
- * @param {string} userName - the Name of the user to add
+ * @param {string} userName - The name of the user to add
  */
 function User(userId, userName) {
 	this.id = userId;
 	this.name = userName;
+	this.playlists = [];
 };
 
 
@@ -385,6 +386,26 @@ Users.prototype.add = function(userId, progress) {
 	
 	// Add the user's playlists
 	getPublicPlaylistIds(userId, progress);
+};
+
+/**
+ * Get a User by their ID
+ * @param {string} userId - The ID of the user to get
+ * @returns The user
+ */
+Users.prototype.get = function(userId) {
+	var index = -1;
+	
+	for(var i = 0; i < this.users.length; i++) {
+		if(this.users[i].id = userId) {
+			index = i;
+		}
+	}
+	
+	if(index != -1) {
+		return this.users[index];
+	}
+	return null;
 };
 
 
