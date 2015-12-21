@@ -444,6 +444,19 @@ Matches.prototype.sort = function(sortBy, order, ties, trackSortBy, trackOrder, 
 
 
 /**
+ * A playlist
+ * @param {string} playlistId - The ID of the playlist
+ * @param {string} plaistName - The name of the playlist
+ */
+function Playlist(playlistId, playlistName) {
+	this.id = playlistId;
+	this.name = playlistName;
+	this.active = true;
+}
+
+
+
+/**
  * Keep track of the progress of a process
  * @param {function} update - The function to call every time a task in the queue is completed
  * @param {function} finished - The function to call when all tasks in the queue are completed
@@ -516,6 +529,28 @@ function User(userId, userName) {
 	this.name = userName;
 	this.playlists = [];
 };
+
+/**
+ * Add a playlist
+ * @param {string} playlistId - The ID of the playlist to add
+ * @param {string} playlistName - The name of the playlist to add
+ */
+User.prototype.addPlaylist = function(playlistId, playlistName) {
+	this.playlists.push(new Playlist(playlistId, playlistName));
+}
+
+/**
+ * Get a playlist
+ * @param {string} playlistId - The ID of the platlist to get
+ */
+User.prototype.getPlaylist = function(playlistId) {
+	for(var i = 0; i < this.playlists.length; i++) {
+		if(this.playlists[i].id === playlistId) {
+			return this.playlists[i];
+		}
+	}
+	return null;
+}
 
 
 
