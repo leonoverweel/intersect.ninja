@@ -235,6 +235,25 @@ function getPublicPlaylistIds(userId, progress) {
 };
 
 /**
+ * Recompute the matches for each user
+ */
+function recompute() {
+	
+	// Erase everything
+	matches = new Matches();
+	progress.queue = 0;
+	progress.completed = 0;
+	
+	// Re-crunch all users' playlists
+	for(var i = 0; i < users.users.length; i++) {
+		for(var j = 0; j < users.users[i].playlists.length; j++) {
+			progress.add();
+			crunchPlaylist(users.users[i].id, users.users[i].playlists[j].id, progress);
+		}
+	}
+}
+
+/**
  * Show more artists in the artists table
  */
 function showMore() {
