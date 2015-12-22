@@ -87,7 +87,7 @@ var sorting = {
 $(document).ready(function() {
 
 	// Authorization
-	localStorage.setItem('access_token', 'BQB6aH9f4Kal9gNuHftUfmslwjahJGsA0Vopmk-XGQp-Yo404gk9myak6htSwY9zOYz2PuuxWn9y7Z__kD4suVObYsqyA8kjEQ6l8rQuDrvhQzCpGCT6P8mKuWoIsMk3IO-cr7gq7i3su-ySDjT3fsgKOa7S8po2Czxx95GnjQ-bND_AlavdaC6NmjsxtF-r4_Y');
+	localStorage.setItem('access_token', 'BQCoIp3AD4MHFySuFhSOijrfUXHagCfSIn2prbn5P-J9Echbd14x4sFagwjm7wyAbJgyaxVwlJ7spoQF7HdrOZKZRJf_AzT5_8L-EOQiTfu9tmo_6LAWVI6a1TB3bB47QrQOtnNmFbf7dlCB0eSumNkl0VQYywUMZkOP6VJ86pYPjfq-M6j1vxPMwLMrj-iVd10');
 	console.log('Access token: ' + localStorage.getItem('access_token'));
 	console.log('Refresh token: ' + localStorage.getItem('refresh_token'));
 	
@@ -209,6 +209,41 @@ function displayArtists(array, offset, limit) {
 		$('#artists').append(row);
 	}
 };
+
+/**
+ * Toggle the display of a user's playlists
+ * @param {string} userId - The ID of the User whose playlists to display
+ */
+function displayPlaylists(userId) {
+	var cell = $('#u-' + userId + ' td')[0];
+
+	// Add the list if it's not there yet
+	if(cell.childNodes.length === 1) {
+		
+		// Create unordered list
+		var list = document.createElement('ul');
+		list.setAttribute('class', 'playlists');
+		
+		// Add playlists to unordered list
+		var playlists = users.get(userId).playlists.sort(sorting.name).reverse();
+		for(var i = 0; i < playlists.length; i++) {
+			var listItem = document.createElement('li');
+			var textSpan = document.createElement('span');
+			textSpan.innerText = playlists[i].name;
+			textSpan.setAttribute('onclick', 'toggleActive("' + userId + '","' + playlists[i].id + '")');
+			listItem.appendChild(textSpan);
+			list.appendChild(listItem);
+		}
+		
+		// Add list to cell
+		cell.appendChild(list);
+	}
+	
+	// Remove the list if it is
+	else {
+		cell.removeChild(cell.lastChild);
+	}
+}
 
 /**
  * Get the current user's id and call getPublicPlaylistIds()
@@ -622,11 +657,20 @@ Users.prototype.add = function(userId, progress) {
 		// Add the user to the users array
 		array.push(user);
 		
-		// Add the user to the displayed list of users
+		// Create the user's row
 		var userRow = document.createElement('tr');
 		userRow.setAttribute('id', 'u-' + user.id);
+		
+		// Create the user's name's column
 		var userCol1 = document.createElement('td');
-		userCol1.appendChild(document.createTextNode(user.name));
+		
+		// Create the span for the user's name
+		var userNameElement = document.createElement('span');
+		userNameElement.setAttribute('onclick', 'displayPlaylists(' + user.id + ')');
+		
+		// Append everything
+		userNameElement.appendChild(document.createTextNode(user.name));
+		userCol1.appendChild(userNameElement);
 		userRow.appendChild(userCol1);
 		$('#users').append(userRow);
 	});

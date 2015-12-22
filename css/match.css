@@ -36,6 +36,27 @@ table td {
 	padding-top: 5px;
 }
 
+#users tr:not(:first-of-type) td:first-child {
+	cursor: pointer;
+}
+
+#users .playlists {
+	color: rgb(180, 180, 180);
+	cursor: default;
+	font-size: 0.9em;
+	margin: 0px;
+	margin-top: 5px;
+	padding: 0px;
+}
+
+#users .playlists li {
+	list-style: none;
+}
+
+li span {
+	cursor: pointer;
+}
+
 #u-new {
     width: 90%;
     margin: 0px;
