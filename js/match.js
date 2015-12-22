@@ -87,7 +87,7 @@ var sorting = {
 $(document).ready(function() {
 
 	// Authorization
-	localStorage.setItem('access_token', 'BQCoIp3AD4MHFySuFhSOijrfUXHagCfSIn2prbn5P-J9Echbd14x4sFagwjm7wyAbJgyaxVwlJ7spoQF7HdrOZKZRJf_AzT5_8L-EOQiTfu9tmo_6LAWVI6a1TB3bB47QrQOtnNmFbf7dlCB0eSumNkl0VQYywUMZkOP6VJ86pYPjfq-M6j1vxPMwLMrj-iVd10');
+	//localStorage.setItem('access_token', 'BQCbMdbjlEY2znW3f3D_lmKW-b8MONXRnBmgOjZn1jDKIyIrS4v-ZGb6S5GjWp8Y4HnI2hSehz3XiR0Yw8Wekfu_2ujEpqSM367RhLH9sXmpNrQVmHbnGoQry3gBnhT5jGorTZzzJECkPI8vdbju74dJOvucrRJZYxqZ3R4jPIHvsxjgQjSGVE_qXJExVpscl8k');
 	console.log('Access token: ' + localStorage.getItem('access_token'));
 	console.log('Refresh token: ' + localStorage.getItem('refresh_token'));
 	
@@ -227,15 +227,22 @@ function displayPlaylists(userId) {
 		// Add playlists to unordered list
 		var playlists = users.get(userId).playlists.sort(sorting.name).reverse();
 		for(var i = 0; i < playlists.length; i++) {
+			
+			// Create the list item
 			var listItem = document.createElement('li');
+			listItem.setAttribute('id', userId + '-' + playlists[i].id);
+			(playlists[i].active === true) ? listItem.style.color = 'rgb(180, 180, 180)' : listItem.style.color = 'rgb(100, 100, 100)';
+			
+			// Create the text
 			var textSpan = document.createElement('span');
 			textSpan.innerText = playlists[i].name;
 			textSpan.setAttribute('onclick', 'toggleActive("' + userId + '","' + playlists[i].id + '")');
+			
+			// Append everything
 			listItem.appendChild(textSpan);
 			list.appendChild(listItem);
 		}
 		
-		// Add list to cell
 		cell.appendChild(list);
 	}
 	
@@ -329,6 +336,28 @@ function spotifyGet(url, callback, error) {
 		}
 	});
 };
+
+/**
+ * Toggle whether a user's playlist is active or not and recompute matches
+ * @param {string} userId - The ID of the User to toggle
+ * @param {string} playlistId - The ID of the Playlist to toggle
+ */
+function toggleActive(userId, playlistId) {
+	var playlist = users.get(userId).getPlaylist(playlistId);
+	var element = $('#' + userId + '-' + playlistId)[0];
+	
+	if(playlist.active === true) {
+		playlist.active = false;
+		element.style.color = 'rgb(100, 100, 100)';
+	} 
+	else {
+		playlist.active = true;
+		element.style.color = 'rgb(180, 180, 180)';
+	}
+	
+	// Recompute
+	recompute();
+}
 
 
 
@@ -666,7 +695,7 @@ Users.prototype.add = function(userId, progress) {
 		
 		// Create the span for the user's name
 		var userNameElement = document.createElement('span');
-		userNameElement.setAttribute('onclick', 'displayPlaylists(' + user.id + ')');
+		userNameElement.setAttribute('onclick', 'displayPlaylists("' + user.id + '")');
 		
 		// Append everything
 		userNameElement.appendChild(document.createTextNode(user.name));
@@ -688,7 +717,7 @@ Users.prototype.get = function(userId) {
 	var index = -1;
 	
 	for(var i = 0; i < this.users.length; i++) {
-		if(this.users[i].id = userId) {
+		if(this.users[i].id === userId) {
 			index = i;
 		}
 	}
