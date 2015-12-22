@@ -87,7 +87,7 @@ var sorting = {
 $(document).ready(function() {
 
 	// Authorization
-	localStorage.setItem('access_token', 'BQD4PXUjJfwZbI55pq2j7dpy6Gbq0fai70xyu2GuXMOwohBX-4jpEn7kLHe27IeMoCTUE5hpLjkCJIHjJQY4-VCY4qnuW1l3u7SUNejAm9RMPavGetZWGJYsL8JYr2pMpPpeGXiUsueHqMS_veb8VOQV6tyX28SVARloYBryhjmX1t7B7ho_Q7E8dWy_2R_djm8');
+	localStorage.setItem('access_token', 'BQB6aH9f4Kal9gNuHftUfmslwjahJGsA0Vopmk-XGQp-Yo404gk9myak6htSwY9zOYz2PuuxWn9y7Z__kD4suVObYsqyA8kjEQ6l8rQuDrvhQzCpGCT6P8mKuWoIsMk3IO-cr7gq7i3su-ySDjT3fsgKOa7S8po2Czxx95GnjQ-bND_AlavdaC6NmjsxtF-r4_Y');
 	console.log('Access token: ' + localStorage.getItem('access_token'));
 	console.log('Refresh token: ' + localStorage.getItem('refresh_token'));
 	
@@ -113,38 +113,44 @@ function crunchPlaylist(userId, playlistId, progress) {
 		// Playlist found
 		function(data) {
 			var tracks = JSON.parse(data['responseText'])['tracks']['items'];
-			
-			// Loop through playlist tracks
-			for(var i = 0; i < tracks.length; i++) {
+
+			// Add the playlist to the user if it doesn't exist
+			var user = users.get(userId);
+			if(user.getPlaylist(playlistId) === null) {
+				user.addPlaylist(playlistId, JSON.parse(data['responseText']).name);
+			}
+
+			// If the playlist is active, crunch it
+			if(user.getPlaylist(playlistId).active === true) {
 				
-				// Get track id
-				var trackId = tracks[i]['track']['id'];
-				
-				// Loop through the track's artists
-				var trackArtists = tracks[i]['track']['artists'];
-				for(var j = 0; j < trackArtists.length; j++) {
+				// Loop through playlist tracks
+				for(var i = 0; i < tracks.length; i++) {
 					
-					// Make sure there are no null ids
-					if(trackArtists[j]['id'] != null && trackId != null) {
+					// Get track id
+					var trackId = tracks[i]['track']['id'];
+					
+					// Loop through the track's artists
+					var trackArtists = tracks[i]['track']['artists'];
+					for(var j = 0; j < trackArtists.length; j++) {
 						
-						// Add the track and song
-						matches.add(trackArtists[j]['id'], trackId, userId);
-						
-						// Add the artist data
-						var artist = matches.getArtist(trackArtists[j]['id']);
-						artist.name = trackArtists[j]['name'];
-						
-						// Add the track data
-						var track = artist.getTrack(trackId);
-						track.name = tracks[i]['track']['name'];
-						track.length = tracks[i]['track']['duration_ms'];
+						// Make sure there are no null ids
+						if(trackArtists[j]['id'] != null && trackId != null) {
+							
+							// Add the track and song
+							matches.add(trackArtists[j]['id'], trackId, userId);
+							
+							// Add the artist data
+							var artist = matches.getArtist(trackArtists[j]['id']);
+							artist.name = trackArtists[j]['name'];
+							
+							// Add the track data
+							var track = artist.getTrack(trackId);
+							track.name = tracks[i]['track']['name'];
+							track.length = tracks[i]['track']['duration_ms'];
+						}
 					}
 				}
 			}
-			
-			// Add the playlist to the User
-			var user = users.get(userId);
-			user.addPlaylist(playlistId, JSON.parse(data['responseText']).name);
 			
 			// Complete
 			progress.complete();
