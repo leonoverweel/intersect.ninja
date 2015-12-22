@@ -87,7 +87,7 @@ var sorting = {
 $(document).ready(function() {
 
 	// Authorization
-	localStorage.setItem('access_token', 'BQCPHN023yUSXl4fLDWk9QSCxuLfIxt9yuB7aZGOFDsqLP_2OgQVlb46XaQFKOTqr1PTlCCYLa1WUi8Yqo-u4jWT0hu7CWAd0BvPK_1QS5qBnlreJ5Q-eHFZR0hJZ-GPLBxtAhebPuqLvv1HzhKPXpEJYV_9uetw_H1t3BnCqPgPoO67Sr_5lWux4cNFFooLlNo');
+	localStorage.setItem('access_token', 'BQD4PXUjJfwZbI55pq2j7dpy6Gbq0fai70xyu2GuXMOwohBX-4jpEn7kLHe27IeMoCTUE5hpLjkCJIHjJQY4-VCY4qnuW1l3u7SUNejAm9RMPavGetZWGJYsL8JYr2pMpPpeGXiUsueHqMS_veb8VOQV6tyX28SVARloYBryhjmX1t7B7ho_Q7E8dWy_2R_djm8');
 	console.log('Access token: ' + localStorage.getItem('access_token'));
 	console.log('Refresh token: ' + localStorage.getItem('refresh_token'));
 	
@@ -141,6 +141,12 @@ function crunchPlaylist(userId, playlistId, progress) {
 					}
 				}
 			}
+			
+			// Add the playlist to the User
+			var user = users.get(userId);
+			user.addPlaylist(playlistId, JSON.parse(data['responseText']).name);
+			
+			// Complete
 			progress.complete();
 		},
 		
