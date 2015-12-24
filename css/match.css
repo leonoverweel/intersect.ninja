@@ -1,6 +1,7 @@
 h1 {
 	margin-top: 0px;
 	margin-bottom: 15px;
+	padding-top: 40px;
 }
 
 p.small {
@@ -93,11 +94,14 @@ li span {
 }
 
 .progress {
-	padding-top: 5px;
-	padding-bottom: 5px;
-	text-align: center;
-	border-top-left-radius: 0px;
-	border-top-right-radius: 0px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    text-align: center;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+    background: rgb(40, 40, 40);
+    position: fixed;
+    width: 100%;
 }
 
 #progress {

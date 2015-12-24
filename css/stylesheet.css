@@ -7,8 +7,7 @@ body {
 	background: rgb(40,40,40);
 	color: rgb(180, 180, 180);
 	font-family: 'Open Sans', sans-serif;
-	padding-left: 10px;
-	padding-right: 10px;
+	padding: 0px;
 }
 
 a {
