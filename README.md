@@ -1,7 +1,11 @@
 # music-we-like
 Use multiple peoples' Spotify accounts to find intersections in the songs, artists and genres they like.
 
-## Setup
+## Repo Setup
+
+To get started, make a new Google App Engine application, note down its ID, and make sure you've got the App Engine Launcher installed for deployment and local testing.
+
+Then, go to Spotify's developer console, register your app, and add `http://your-app-id.appspot.com/` to the whitelist of redirect URLs.
 
 Once you fork/ clone this repository, make a folder called `assets` in the root directory, and add a file `keys.json` with the following content:
 
