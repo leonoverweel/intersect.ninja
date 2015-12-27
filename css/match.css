@@ -130,9 +130,10 @@ li span {
 }
 
 td.a-cell {
-	cursor: default;
-    padding-top: 10px;
-	padding-bottom: 10px;
+	background: rgb(40,40,40);
+    cursor: default;
+	padding: 10px;
+	padding-bottom: 5px;
 }
 
 td.a-cell h2 {
@@ -157,4 +158,21 @@ td.a-cell p {
 
 td.a-cell p span {
     color: rgb(255, 255, 255);
+}
+
+td.a-cell tr:not(:last-of-type) {
+    border-bottom: rgb(55, 55, 55) 1px solid;
+}
+
+td.a-cell td {
+	cursor: default;
+}
+
+td.a-cell td span {
+    font-size: 0.6em;
+    background: rgb(55,55,55);
+    padding: 5px;
+    margin-right: 3px;
+    border-radius: 20px;
+    display: inline-block;
 }
