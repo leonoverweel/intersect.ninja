@@ -130,7 +130,7 @@ li span {
 }
 
 td.a-cell {
-	cursor: auto;
+	cursor: default;
     padding-top: 10px;
 	padding-bottom: 10px;
 }
