@@ -87,7 +87,7 @@ var sorting = {
 $(document).ready(function() {
 
 	// Authorization
-	//localStorage.setItem('access_token', 'BQBjLarp_ODlfLyDIrMzraK5OTREbjBDGuJEu2EkE_1eDiAgI9YZxak_UVgpwttPF7Me_D8qyjm35KrcI02uEOv6TiPCP4lndo1yCNaH12UI9-t1ebnYRgUvlPwAx3Ia0SVJHpirsaDe9gclLbebEIkNaL8gyRk2yGULKYrck3IK_sGhVoPWS1fWHTo7WiOl5v4');
+	localStorage.setItem('access_token', 'BQDxYmt9R9BdBm0pMd6MncMxWZuHk3rCo2EzVdE92l63PRdCoaGwl2u3EF9P8hQMuopylR8oIQNZWnUZatibRX17_ptnoWIuQk2351lkVfoB2ODikShwu8HM55D-aa-colo0yTsx6mmhJZbjkPdF2Ee06988bjooNELL_KWzhNHkoTU3cHQZMoD6wj5c-k5NgBA');
 	console.log('Access token: ' + localStorage.getItem('access_token'));
 	console.log('Refresh token: ' + localStorage.getItem('refresh_token'));
 	
@@ -211,10 +211,50 @@ function displayArtistInfo(artistId) {
 			pUsers.appendChild(sep);
 		}
 		
+		// Create the tracks table
+		var table = document.createElement('table');
+		var tbody = document.createElement('tbody');
+		var headerRow = document.createElement('tr');
+		var header1 = document.createElement('td'); $(header1).text('Track'); headerRow.appendChild(header1);
+		var header2 = document.createElement('td'); $(header2).text('Users'); headerRow.appendChild(header2);
+		var header3 = document.createElement('td'); $(header3).text('Length'); headerRow.appendChild(header3);
+		tbody.appendChild(headerRow);
+		
+		// Fill the tracks table
+		for(var i = 0; i < artist.tracks.length; i++) {
+			var trackTr = document.createElement('tr');
+			
+			// Name
+			var tdName = document.createElement('td'); $(tdName).text(artist.tracks[i].name);
+			trackTr.appendChild(tdName);
+			
+			// Users
+			var tdUsers = document.createElement('td');
+			for(var j = 0; j < artist.tracks[i].userIds.length; j++) {
+				var user = users.get(artist.tracks[i].userIds[j]);
+				var parts = user.name.split(' ');
+				var initials = '';
+				for(var k = 0; k < parts.length; k++)
+					initials += parts[k][0];
+				var span = document.createElement('span'); $(span).text(initials);
+				tdUsers.appendChild(span);
+			}
+			trackTr.appendChild(tdUsers);
+			
+			// Length
+			var mins = Math.floor(artist.tracks[i].length / (1000 * 60));
+			var secs = Math.floor((artist.tracks[i].length - mins * 1000 * 60) / 1000);
+			var tdLen = document.createElement('td'); $(tdLen).text(mins + ':' + (secs + 1e15 + '').slice(-2));
+			trackTr.appendChild(tdLen);
+			
+			tbody.appendChild(trackTr);
+		}
+		
 		// Append everything
 		col.appendChild(img);
 		col.appendChild(name);
 		col.appendChild(pUsers);
+		table.appendChild(tbody); col.appendChild(table);
 		row.appendChild(col);
 		$('#a-' + artistId).after(row);
 	});
@@ -499,12 +539,12 @@ Artist.prototype.getUserCount = function() {
  * @param {string} sortBy - The type of sort to perform (options: 'users', 'name', 'length')
  * @param {string} order - Order in which to sort (options: 'asc', 'desc')
  */
-Artist.prototype.sort = function(sortBy, order) {
+Artist.prototype.sort = function(sortBy, order, ties) {
 	var sorted = this.tracks;
 	var sortFunction = sorting[sortBy];
 	
 	sorted = sorted.sort(function(a, b) {
-		return sortFunction(a, b, order);
+		return sortFunction(a, b, order, ties);
 	});
 	
 	return sorted;
@@ -583,7 +623,7 @@ Matches.prototype.sort = function(sortBy, order, ties, trackSortBy, trackOrder, 
 	// Sort artists' tracks
 	if(trackSortBy != null && trackOrder != null) {
 		for(var i = 0; i < sorted.length; i++) {
-			sorted[i].sort(trackSortBy, trackOrder);
+			sorted[i].sort(trackSortBy, trackOrder, trackTies);
 		}
 	}
 	
