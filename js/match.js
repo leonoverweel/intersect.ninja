@@ -243,6 +243,7 @@ function displayArtistInfo(artistId) {
 				for(var k = 0; k < parts.length; k++)
 					initials += parts[k][0].toUpperCase();
 				var span = document.createElement('span'); $(span).text(initials);
+				span.setAttribute('title', user.name);
 				tdUsers.appendChild(span);
 			}
 			trackTr.appendChild(tdUsers);
