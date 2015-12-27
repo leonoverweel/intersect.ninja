@@ -87,7 +87,7 @@ var sorting = {
 $(document).ready(function() {
 
 	// Authorization
-	//localStorage.setItem('access_token', 'BQDxYmt9R9BdBm0pMd6MncMxWZuHk3rCo2EzVdE92l63PRdCoaGwl2u3EF9P8hQMuopylR8oIQNZWnUZatibRX17_ptnoWIuQk2351lkVfoB2ODikShwu8HM55D-aa-colo0yTsx6mmhJZbjkPdF2Ee06988bjooNELL_KWzhNHkoTU3cHQZMoD6wj5c-k5NgBA');
+	//localStorage.setItem('access_token', 'BQDu7Xkje7Ac1iVljpPBUF-FduUdB8a4g-aLVyQh8hCRfirvGjBnKdDDfdiI3maKx6JZ6ISGSkqST1XyinO1vhGklQy_qyhaQsQVrQ3UN37P6vI4QxBRIqcRf0KLIdZvH2gYt8NRPKkaaUQb7xipF9_XdJplBnjm5hoy7yRzHKD-bK29-pEjJikNJaY4FryDFp0');
 	console.log('Access token: ' + localStorage.getItem('access_token'));
 	console.log('Refresh token: ' + localStorage.getItem('refresh_token'));
 	
@@ -235,7 +235,7 @@ function displayArtistInfo(artistId) {
 				var parts = user.name.split(' ');
 				var initials = '';
 				for(var k = 0; k < parts.length; k++)
-					initials += parts[k][0];
+					initials += parts[k][0].toUpperCase();
 				var span = document.createElement('span'); $(span).text(initials);
 				tdUsers.appendChild(span);
 			}
@@ -779,7 +779,8 @@ Users.prototype.add = function(userId, progress) {
 		
 		// Get the user's data
 		var userData = JSON.parse(data['responseText']);
-		var user = new User(userId, userData['display_name']);
+		var name; (userData['display_name'] != null) ? name = userData['display_name'] : name = userId;
+		var user = new User(userId, name);
 		
 		// Add the user to the users array
 		array.push(user);
