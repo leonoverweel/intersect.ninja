@@ -125,7 +125,12 @@ li span {
     background: rgb(40, 40, 40);
 }
 
+#artists tr:not(:first-of-type) {
+	cursor: pointer;
+}
+
 td.a-cell {
+	cursor: auto;
     padding-top: 10px;
 	padding-bottom: 10px;
 }
@@ -140,7 +145,8 @@ td.a-cell img {
     float: left;
     margin-right: 10px;
     width: 100%;
-    max-width: 200px;
+    max-width: 150px;
+	max-height: 150px;
 	margin-bottom: 10px;
 }
 

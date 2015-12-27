@@ -87,7 +87,7 @@ var sorting = {
 $(document).ready(function() {
 
 	// Authorization
-	//localStorage.setItem('access_token', 'BQCbMdbjlEY2znW3f3D_lmKW-b8MONXRnBmgOjZn1jDKIyIrS4v-ZGb6S5GjWp8Y4HnI2hSehz3XiR0Yw8Wekfu_2ujEpqSM367RhLH9sXmpNrQVmHbnGoQry3gBnhT5jGorTZzzJECkPI8vdbju74dJOvucrRJZYxqZ3R4jPIHvsxjgQjSGVE_qXJExVpscl8k');
+	//localStorage.setItem('access_token', 'BQBjLarp_ODlfLyDIrMzraK5OTREbjBDGuJEu2EkE_1eDiAgI9YZxak_UVgpwttPF7Me_D8qyjm35KrcI02uEOv6TiPCP4lndo1yCNaH12UI9-t1ebnYRgUvlPwAx3Ia0SVJHpirsaDe9gclLbebEIkNaL8gyRk2yGULKYrck3IK_sGhVoPWS1fWHTo7WiOl5v4');
 	console.log('Access token: ' + localStorage.getItem('access_token'));
 	console.log('Refresh token: ' + localStorage.getItem('refresh_token'));
 	
@@ -164,10 +164,67 @@ function crunchPlaylist(userId, playlistId, progress) {
 };
 
 /**
+ * Display an Artist's info
+ * @param {string} artistId - The ID of the Artist whose info to display
+ */
+function displayArtistInfo(artistId) {
+	
+	// If the artist's info is already displayed, remove it
+	var existing = document.getElementById('i-' + artistId);
+	if(existing !== null) {
+		existing.remove();
+		return;
+	}
+	
+	spotifyGet('https://api.spotify.com/v1/artists/' + artistId, function(response) {	
+		var artist = matches.getArtist(artistId);
+		var data = JSON.parse(response['responseText']);
+		
+		// Create the row
+		var row = document.createElement('tr');
+		row.setAttribute('id', 'i-' + artistId);
+		
+		// Create the cell
+		var col = document.createElement('td');
+		col.setAttribute('class', 'a-cell');
+		col.setAttribute('colspan', '3');
+		
+		// Create the header
+		var name = document.createElement('h2');
+		name.appendChild(document.createTextNode(data['name']));
+		
+		// Create the image
+		var img = document.createElement('img');
+		img.setAttribute('src', data['images'][0]['url']);
+		
+		// Create the users paragraph
+		var pUsers = document.createElement('p');
+		pUsers.appendChild(document.createTextNode('Users: '));
+		for(var i = 0; i < artist.userIds.length; i++) {
+			var user = users.get(artist.userIds[i]);
+			
+			var span = document.createElement('span');
+			$(span).text(user['name']);
+			pUsers.appendChild(span);
+			
+			var sep; (i != artist.userIds.length - 1) ? sep = document.createTextNode(', ') : sep = document.createTextNode('.');
+			pUsers.appendChild(sep);
+		}
+		
+		// Append everything
+		col.appendChild(img);
+		col.appendChild(name);
+		col.appendChild(pUsers);
+		row.appendChild(col);
+		$('#a-' + artistId).after(row);
+	});
+}
+
+/**
  * Display the array of artists
- * @param {object} array - the array of artists to display
- * @param {number} offset - the index of the array to start
- * @param {numer} limit - the index of the array to stop
+ * @param {object} array - The array of artists to display
+ * @param {number} offset - The index of the array to start
+ * @param {numer} limit - The index of the array to stop
  */
 function displayArtists(array, offset, limit) {
 	
@@ -190,6 +247,7 @@ function displayArtists(array, offset, limit) {
 		// Add the artist to the displayed list of artists
 		var row = document.createElement('tr');
 		row.setAttribute('id', 'a-' + artist.artistId);
+		row.setAttribute('onclick', 'displayArtistInfo("' + artist.artistId + '")');
 		
 		// Add the artist's name
 		var colName = document.createElement('td');
