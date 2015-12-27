@@ -194,8 +194,11 @@ function displayArtistInfo(artistId) {
 		name.appendChild(document.createTextNode(data['name']));
 		
 		// Create the image
-		var img = document.createElement('img');
-		img.setAttribute('src', data['images'][0]['url']);
+		if(data['images'].length > 0) {
+			var img = document.createElement('img');
+			var index; (data['images'].length >= 2) ? index = 2 : index = (data['images'][data['images'].length - 1]);
+			img.setAttribute('src', data['images'][index]['url']);
+		}
 		
 		// Create the users paragraph
 		var pUsers = document.createElement('p');
@@ -251,7 +254,7 @@ function displayArtistInfo(artistId) {
 		}
 		
 		// Append everything
-		col.appendChild(img);
+		if(img != null) col.appendChild(img);
 		col.appendChild(name);
 		col.appendChild(pUsers);
 		table.appendChild(tbody); col.appendChild(table);
