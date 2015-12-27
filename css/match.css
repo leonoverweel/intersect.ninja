@@ -124,3 +124,31 @@ li span {
 #show-more a:hover {
     background: rgb(40, 40, 40);
 }
+
+td.a-cell {
+    padding-top: 10px;
+	padding-bottom: 10px;
+}
+
+td.a-cell h2 {
+    margin: 0px;
+    margin-top: -7px;
+    margin-bottom: 5px;
+}
+
+td.a-cell img {
+    float: left;
+    margin-right: 10px;
+    width: 100%;
+    max-width: 200px;
+	margin-bottom: 10px;
+}
+
+td.a-cell p {
+    color: rgb(180, 180, 180);
+    text-align: left;
+}
+
+td.a-cell p span {
+    color: rgb(255, 255, 255);
+}
