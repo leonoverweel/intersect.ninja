@@ -35,6 +35,7 @@ table td {
 	padding: 0px;
 	padding-bottom: 5px;
 	padding-top: 5px;
+	min-width: 60px;
 }
 
 #users tr:not(:first-of-type) td:first-child {
