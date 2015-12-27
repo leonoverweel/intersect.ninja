@@ -196,7 +196,10 @@ function displayArtistInfo(artistId) {
 		// Create the image
 		if(data['images'].length > 0) {
 			var img = document.createElement('img');
-			var index; (data['images'].length >= 2) ? index = 2 : index = (data['images'][data['images'].length - 1]);
+			var index;
+			for(var i = 0; i < data['images'].length; i++)
+				if(data['images'][i].width > 300)
+					index = i;
 			img.setAttribute('src', data['images'][index]['url']);
 		}
 		
