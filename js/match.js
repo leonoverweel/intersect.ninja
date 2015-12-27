@@ -87,7 +87,7 @@ var sorting = {
 $(document).ready(function() {
 
 	// Authorization
-	localStorage.setItem('access_token', 'BQDxYmt9R9BdBm0pMd6MncMxWZuHk3rCo2EzVdE92l63PRdCoaGwl2u3EF9P8hQMuopylR8oIQNZWnUZatibRX17_ptnoWIuQk2351lkVfoB2ODikShwu8HM55D-aa-colo0yTsx6mmhJZbjkPdF2Ee06988bjooNELL_KWzhNHkoTU3cHQZMoD6wj5c-k5NgBA');
+	//localStorage.setItem('access_token', 'BQDxYmt9R9BdBm0pMd6MncMxWZuHk3rCo2EzVdE92l63PRdCoaGwl2u3EF9P8hQMuopylR8oIQNZWnUZatibRX17_ptnoWIuQk2351lkVfoB2ODikShwu8HM55D-aa-colo0yTsx6mmhJZbjkPdF2Ee06988bjooNELL_KWzhNHkoTU3cHQZMoD6wj5c-k5NgBA');
 	console.log('Access token: ' + localStorage.getItem('access_token'));
 	console.log('Refresh token: ' + localStorage.getItem('refresh_token'));
 	
