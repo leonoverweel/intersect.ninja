@@ -1,5 +1,5 @@
-# music-we-like
-Use multiple peoples' Spotify accounts to find intersections in the songs, artists and genres they like.
+# Intersect-Ninja
+Use multiple peoples' public Spotify playlists to find intersections in the artists and tracks they like.
 
 ## Repo Setup
 
