@@ -1,5 +1,7 @@
-# Intersect-Ninja
+# Intersect.Ninja for Spotify
 Use multiple peoples' public Spotify playlists to find intersections in the artists and tracks they like.
+
+http://intersect.ninja/
 
 ## Repo Setup
 
