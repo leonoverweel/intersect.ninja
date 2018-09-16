@@ -771,7 +771,7 @@ Users.prototype.add = function(userId, progress) {
 	
 	// If a URL or URI is passed, grab the id from that
 	if(userId.indexOf('user') != -1) {
-		userId = userId.substring(userId.indexOf('user') + 5);
+		userId = userId.substring(userId.indexOf('user') + 5, userId.indexOf('?'));
 	}
 		
 	// Check if the user already exists
@@ -780,6 +780,8 @@ Users.prototype.add = function(userId, progress) {
 			return;
 		}
 	}
+
+	console.log(userId);
 	
 	// Add the user
 	spotifyGet('https://api.spotify.com/v1/users/' + userId, function(data) {

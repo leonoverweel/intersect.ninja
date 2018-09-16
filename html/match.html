@@ -9,7 +9,7 @@
 		<meta property="og:description" content="Looking for music everyone you're hanging out with will enjoy? Use Intersect.Ninja for Spotify to find the artists and tracks that you and your friends have in common in your public Spotifyplaylists." />
 		<meta property="og:image" content="http://i.imgur.com/2by3bUU.png" />
 		<script type="text/javascript" src="../js/jquery-2.1.4.min.js"></script>
-		<script type="text/javascript" src="../js/match.min.js"></script>
+		<script type="text/javascript" src="../js/match.js"></script>
 		<script>
 			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 			(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -41,7 +41,7 @@
 			</table>
 			<input type="text" id="u-new" autocomplete=off placeholder="Paste a user's Profile Link here and click Add" onkeydown="if (event.keyCode == 13) $('#u-add').click()"/></input>
 			<button id="u-add" onclick="users.add($('#u-new')[0]['value'], progress); $('#u-new').val('');">add</button>
-			<p class="small last">You can find someone's Profile Link by going to their profile on Spotify, clicking the ... button below their name, and clicking <i>Copy Profile Link</i>.</p>
+			<p class="small last">You can find someone's Profile Link by going to their profile on Spotify, clicking the ... button below their name, and clicking <i>Share</i> > <i>Copy Profile Link</i>.</p>
 		</div>
 		
 		<div class="wrapper">
