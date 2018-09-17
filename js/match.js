@@ -771,7 +771,12 @@ Users.prototype.add = function(userId, progress) {
 	
 	// If a URL or URI is passed, grab the id from that
 	if(userId.indexOf('user') != -1) {
-		userId = userId.substring(userId.indexOf('user') + 5, userId.indexOf('?'));
+		if(userId.indexOf('?') != -1) {
+			userId = userId.substring(userId.indexOf('user/') + 5, userId.indexOf('?'));
+		}
+		else {
+			userId = userId.substring(userId.indexOf('user/') + 5);
+		}
 	}
 		
 	// Check if the user already exists
