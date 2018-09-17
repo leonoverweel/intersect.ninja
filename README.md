@@ -3,6 +3,8 @@ Use multiple peoples' public Spotify playlists to find intersections in the arti
 
 http://intersect.ninja/
 
+Note: I built this site back in high school (and it was my first large front-end project), so even though it still runs fine, the code and architecture are not up to the standards of what I write today 😅.
+
 ## Repo Setup
 
 To get started, make a new Google App Engine application, note down its ID, and make sure you've got the App Engine Launcher installed for deployment and local testing.
